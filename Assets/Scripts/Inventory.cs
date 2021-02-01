@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Linq;
 using Mirror;
 
 public class Inventory : IInteractable
@@ -6,10 +7,14 @@ public class Inventory : IInteractable
     #region Variables
     /* publics */
 
-
     /* privates */
     Item item;
     RobLogger RL;
+
+    Color color;
+    Renderer meshRenderer;
+
+    Color[] originalColours;
 
     /* Sync variables that are kept in sync on Client/Server */
     #region SyncVariables
@@ -39,19 +44,44 @@ public class Inventory : IInteractable
     /* Generic Code starts here i.e. Both Server/Client */
     #region Generic
 
+    public Item getItem()
+    {
+        return item;
+    }
     void Awake()
     {
         RL = RobLogger.GetRobLogger();
     }
 
     /// <summary>
-    /// OnTriggerExit is called when the Collider other has stopped touching the trigger.
+    /// Start is called on the frame when a script is enabled just before
+    /// any of the Update methods is called the first time.
     /// </summary>
-    /// <param name="other">The other Collider involved in this collision.</param>
-    void OnTriggerExit(Collider other)
+    void Start()
     {
-        OnDefocused();
+        if (meshRenderer == null)
+        {
+            meshRenderer = GetComponent<MeshRenderer>();
+        }
+        originalColours = meshRenderer.materials.Select(x => x.color).ToArray();
     }
+
+    public override void InRangeToBeTouched()
+    {
+        foreach (Material mat in meshRenderer.materials)
+        {
+            mat.color *= color;
+        }
+    }
+
+    public override void LeftRangeToBeTouched()
+    {
+        for (int i = 0; i < originalColours.Length; i++)
+        {
+            meshRenderer.materials[i].color = originalColours[i];
+        }
+    }
+
 
     #endregion
     /* Code for Server only runs here i.e. Commands and relevants */
@@ -107,7 +137,7 @@ public class Inventory : IInteractable
         SetCont(CONSTANTS.NO_ITEM);
     }
 
-    void SetCont(int newItem)
+    public void SetCont(int newItem)
     {
         if (newItem == CONSTANTS.NO_ITEM)
         {

@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using Mirror;
 
-
-[RequireComponent(typeof(ColourWhenNear))]
 public class IInteractable : NetworkBehaviour
 {
     #region Variables
@@ -27,6 +25,7 @@ public class IInteractable : NetworkBehaviour
     {
         beingInteracted = newValue;
     }
+
     #endregion
     /* Generic Code starts here i.e. Both Server/Client */
     #region Generic
@@ -40,15 +39,29 @@ public class IInteractable : NetworkBehaviour
         return beingInteracted;
     }
 
-    // Called when the object is no longer interacted
-    public void OnDefocused()
+    public virtual void InRangeToBeTouched()
     {
-        beingInteracted = false;
+        // nothing todo here
+    }
+
+    public virtual void LeftRangeToBeTouched()
+    {
+        // nothing todo here
     }
     #endregion
 
     /* Code for Server only runs here i.e. Commands and relevants */
     #region Server
+
+    public void StartInteraction()
+    {
+        beingInteracted = true;
+    }
+
+    public void EndInteraction()
+    {
+        beingInteracted = false;
+    }
 
     #endregion
     /* Code for Client only runs here i.e. ClientRPC and relevants */
@@ -66,10 +79,4 @@ public class IInteractable : NetworkBehaviour
         Gizmos.DrawWireCube(transform.position, new Vector3(3f, 3f, 3f));
     }
     #endregion
-
-
-
-
-
-
 }

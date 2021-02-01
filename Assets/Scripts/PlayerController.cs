@@ -1,14 +1,13 @@
 ﻿using UnityEngine;
 using Mirror;
+using System.Collections.Generic;
 
 public class PlayerController : NetworkBehaviour
 {
     #region Variables
     /* publics */
-
     public Material playerMat;
     public Material teamMat;
-
 
     /* privates */
     RobLogger RL;
@@ -18,8 +17,14 @@ public class PlayerController : NetworkBehaviour
     float speed = 6f;
     float turnSmoothTime = 0.1f;
     float turnSmoothVelocity;
-    float pickupRange = 5f;
-    Item heldItem;
+    public Item heldItem;
+    InventoryUI invUI;
+
+    bool UIUp = false;
+    bool Interacting = false;
+
+    List<IInteractable> interactablesInRange = new List<IInteractable>();
+    IInteractable closestInteractable;
 
     /* Sync variables that are kept in sync on Client/Server */
     #region SyncVariables
@@ -55,7 +60,6 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     void Start()
     {
-
         if (isServer)
         {
             RL.writeInfo("Player Server hello!!!");
@@ -74,6 +78,8 @@ public class PlayerController : NetworkBehaviour
         }
 
         cc = GetComponent<CharacterController>();
+
+        invUI = FindObjectOfType<InventoryUI>();
 
         /* Setup colours */
         allRenderers = GetComponentsInChildren<MeshRenderer>();
@@ -110,10 +116,16 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
+        if (UIUp)
+        {
+            /* UI will manage how to stop */
+            return;
+        }
+
         Move();
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            CmdAttempInteract();
+            AttempInteract();
         }
     }
 
@@ -139,12 +151,22 @@ public class PlayerController : NetworkBehaviour
     #region Server
 
     [Command]
+    void CmdCancelInteract()
+    {
+        closestInteractable.EndInteraction();
+    }
+
+    [Command]
     void CmdAttempInteract()
     {
-        IInteractable[] all = FindObjectsOfType<IInteractable>();
-        IInteractable closestInteract = null;
+        closestInteractable = null;
+        foreach (IInteractable i in interactablesInRange)
+        {
+            RL.writeInfo("Server beleives IInteractable " + i.name + " is in range.");
+        }
+
         float minDist = Mathf.Infinity;
-        foreach (IInteractable g in all)
+        foreach (IInteractable g in interactablesInRange)
         {
             if (g.tag == "box")
             {
@@ -153,32 +175,60 @@ public class PlayerController : NetworkBehaviour
                 Ray ray = new Ray(transform.position, g.transform.position - transform.position);
                 // Debug.DrawRay(transform.position, g.transform.position - transform.position, Color.red, 2f);
 
-                if (Physics.Raycast(ray, out hit, pickupRange))
+                if (Physics.Raycast(ray, out hit, minDist))
                 {
+                    Debug.Log("Hit " + hit.collider.name);
                     if (hit.collider != null && hit.collider.tag == "box")
                     {
                         // Check if it's closest
                         //Debug.DrawRay(transform.position, g.transform.position - transform.position, Color.yellow, 2f);
 
+
                         float dist = Vector3.Distance(g.transform.position, transform.position);
                         if (dist < minDist)
                         {
                             minDist = dist;
-                            closestInteract = hit.collider.gameObject.GetComponent<IInteractable>();
+                            closestInteractable = hit.collider.gameObject.GetComponent<IInteractable>();
                         }
                     }
                 }
             }
         }
 
-        if (closestInteract != null)
+        if (closestInteractable != null)
         {
-            RL.writeInfo("Interacting with closestInteract!");
-            Debug.DrawRay(transform.position, closestInteract.transform.position - transform.position, Color.green, 2f);
-
-            // Ok do it then!
-            closestInteract.Interact(this);
+            if (closestInteractable.isBeingInteracted())
+            {
+                /* can't touch it because it's being touched by someone else! */
+            }
+            else
+            {
+                // Ok do it then!
+                closestInteractable.StartInteraction();
+                TargetStartInteract();
+            }
         }
+    }
+
+    [Command]
+    void CmdTakeItem()
+    {
+        if (closestInteractable == null)
+        {
+            return;
+        }
+        Inventory inven = closestInteractable.GetComponent<Inventory>();
+        if (inven == null)
+        {
+            return;
+        }
+        Item it = inven.getItem();
+        if (it == null)
+        {
+            return;
+        }
+        heldItemID = it.ID;
+        inven.SetCont(CONSTANTS.NO_ITEM);
     }
 
     public void AddItem(Item item)
@@ -191,6 +241,11 @@ public class PlayerController : NetworkBehaviour
     #endregion
     /* Code for Client only runs here i.e. ClientRPC and relevants */
     #region Client
+
+    public void TakeItem()
+    {
+        CmdTakeItem();
+    }
 
     public override void OnStartLocalPlayer()
     {
@@ -232,6 +287,103 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    void AttempInteract()
+    {
+        closestInteractable = null;
+        float minDist = Mathf.Infinity;
+        foreach (IInteractable g in interactablesInRange)
+        {
+            if (g.tag == "box")
+            {
+                // Found the a box Raycast to it
+                RaycastHit hit;
+                Ray ray = new Ray(transform.position, g.transform.position - transform.position);
+                // Debug.DrawRay(transform.position, g.transform.position - transform.position, Color.red, 2f);
+
+                if (Physics.Raycast(ray, out hit, minDist))
+                {
+                    if (hit.collider != null && hit.collider.tag == "box")
+                    {
+                        // Check if it's closest
+                        //Debug.DrawRay(transform.position, g.transform.position - transform.position, Color.yellow, 2f);
+
+                        float dist = Vector3.Distance(g.transform.position, transform.position);
+                        if (dist < minDist)
+                        {
+                            minDist = dist;
+                            closestInteractable = hit.collider.gameObject.GetComponent<IInteractable>();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (closestInteractable != null)
+        {
+            if (closestInteractable.isBeingInteracted())
+            {
+                /* can't touch it because it's being touched by someone else! */
+            }
+            else
+            {
+                /* requesting server checks we can do this baby */
+                CmdAttempInteract();
+            }
+        }
+    }
+
+    [TargetRpc]
+    void TargetStartInteract()
+    {
+        // Start rummaging, wait for x amount of time then do it
+        UIUp = true;
+        Interacting = true;
+        invUI.STARTINVENTORY(closestInteractable.GetComponent<Inventory>(), this);
+    }
+
+    /// <summary>
+    /// OnTriggerEnter is called when the Collider other enters the trigger.
+    /// </summary>
+    /// <param name="other">The other Collider involved in this collision.</param>
+    void OnTriggerEnter(Collider other)
+    {
+        IInteractable inte = other.GetComponent<IInteractable>();
+
+        if (inte != null)
+        {
+            RL.writeInfo("Player " + name + " Interactable " + other.name + " in range!");
+            interactablesInRange.Add(inte);
+            inte.InRangeToBeTouched();
+        }
+    }
+
+    public void CancelUI()
+    {
+        if (Interacting)
+        {
+            CmdCancelInteract();
+        }
+        Interacting = false;
+
+        UIUp = false;
+    }
+
+    /// <summary>
+    /// OnTriggerEnter is called when the Collider other enters the trigger.
+    /// </summary>
+    /// <param name="other">The other Collider involved in this collision.</param>
+    void OnTriggerExit(Collider other)
+    {
+        IInteractable inte = other.GetComponent<IInteractable>();
+
+        if (inte != null)
+        {
+            RL.writeInfo("Player " + name + " Interactable " + other.name + " left range!");
+            interactablesInRange.Remove(inte);
+            inte.LeftRangeToBeTouched();
+        }
+    }
+
 
     #endregion
     #region DebugFunctions
@@ -239,7 +391,9 @@ public class PlayerController : NetworkBehaviour
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(this.transform.position, pickupRange);
+        Vector3 offset = new Vector3(0f, 0f, .25f);
+        // close enough
+        Gizmos.DrawWireCube(this.transform.position + transform.forward + offset, new Vector3(2f, 2f, 1.5f));
     }
 
     #endregion
