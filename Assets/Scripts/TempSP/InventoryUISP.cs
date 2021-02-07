@@ -2,21 +2,20 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class InventoryUI : MonoBehaviour
+public class InventoryUISP : MonoBehaviour
 {
-
     public float secondsToRummage = 10f;
     public GameObject rummageUI;
     public GameObject disUI;
 
-    PlayerController callbacke;
+    PlayerControllerSP callbacke;
 
     public Slider slider;
     public Image contentImage;
     public Button TakeButton;
     public Button DestroyButton;
 
-    public void STARTINVENTORY(Inventory theInv, PlayerController callback)
+    public void STARTINVENTORY(InventorySP theInv, PlayerControllerSP callback)
     {
         /* Reset state */
         StopCoroutine("RummageShow");

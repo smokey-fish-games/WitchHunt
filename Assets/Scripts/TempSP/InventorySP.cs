@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using System.Linq;
-using Mirror;
 
-public class Inventory : IInteractable
+public class InventorySP : IInteractableSP
 {
     #region Variables
     /* publics */
@@ -18,10 +17,8 @@ public class Inventory : IInteractable
 
     /* Sync variables that are kept in sync on Client/Server */
     #region SyncVariables
-    [SyncVar]
     bool empty = false;
 
-    [SyncVar(hook = nameof(SetItem))]
     int itemID;
 
     #endregion

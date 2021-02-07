@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using Mirror;
 using System.Collections.Generic;
 
-public class PlayerController : NetworkBehaviour
+
+public class PlayerControllerSP : MonoBehaviour
 {
     #region Variables
     /* publics */
@@ -18,20 +18,18 @@ public class PlayerController : NetworkBehaviour
     float turnSmoothTime = 0.1f;
     float turnSmoothVelocity;
     public Item heldItem;
-    InventoryUI invUI;
+    InventoryUISP invUI;
 
     bool UIUp = false;
     bool Interacting = false;
 
-    List<IInteractable> interactablesInRange = new List<IInteractable>();
-    IInteractable closestInteractable;
+    List<IInteractableSP> interactablesInRange = new List<IInteractableSP>();
+    IInteractableSP closestInteractable;
 
     /* Sync variables that are kept in sync on Client/Server */
     #region SyncVariables
-    [SyncVar(hook = ("updateItem"))]
     int heldItemID;
 
-    [SyncVar(hook = ("Setname"))]
     public string playerName = "DefaultPlayerName";
     #endregion
     #endregion
@@ -60,44 +58,26 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     void Start()
     {
-        if (isServer)
-        {
-            RL.writeInfo("Player Server hello!!!");
-        }
-        if (isClient)
-        {
-            RL.writeInfo("Player Client hello!!!");
-        }
-        if (isLocalPlayer)
-        {
-            RL.writeInfo("Player LocalPlayer hello!!!");
-        }
-        else
-        {
-            this.tag = "Team";
-        }
-
         cc = GetComponent<CharacterController>();
 
-        invUI = FindObjectOfType<InventoryUI>();
+        invUI = FindObjectOfType<InventoryUISP>();
 
         /* Setup colours */
         allRenderers = GetComponentsInChildren<MeshRenderer>();
         Material m = null;
-        if (!isLocalPlayer)
-        {
-            m = teamMat;
-        }
-        else
-        {
-            m = playerMat;
-        }
+        m = playerMat;
 
         foreach (MeshRenderer ren in allRenderers)
         {
             ren.material = m;
             ren.UpdateGIMaterials();
         }
+
+        cam = Camera.main.transform;
+        //Setup follow cam
+        Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
+        c.m_LookAt = this.transform;
+        c.m_Follow = this.transform;
     }
 
     /// <summary>
@@ -111,11 +91,6 @@ public class PlayerController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isLocalPlayer)
-        {
-            return;
-        }
-
         if (UIUp)
         {
             /* UI will manage how to stop */
@@ -134,39 +109,33 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     void OnDestroy()
     {
-        if (isLocalPlayer)
+        if (Camera.main != null)
         {
-            if (Camera.main != null)
-            {
-                Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
-                SpawnMarker s = SpawnMarker.GetAll(SpawnMarker.SpawnType.PLAYER)[0];
-                c.m_LookAt = s.transform;
-                c.m_Follow = s.transform;
-            }
+            Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
+            SpawnMarker s = SpawnMarker.GetAll(SpawnMarker.SpawnType.PLAYER)[0];
+            c.m_LookAt = s.transform;
+            c.m_Follow = s.transform;
         }
     }
     #endregion
 
     /* Code for Server only runs here i.e. Commands and relevants */
     #region Server
-
-    [Command]
     void CmdCancelInteract()
     {
         closestInteractable.EndInteraction();
     }
 
-    [Command]
     void CmdAttempInteract()
     {
         closestInteractable = null;
-        foreach (IInteractable i in interactablesInRange)
+        foreach (IInteractableSP i in interactablesInRange)
         {
             RL.writeInfo("Server beleives IInteractable " + i.name + " is in range.");
         }
 
         float minDist = Mathf.Infinity;
-        foreach (IInteractable g in interactablesInRange)
+        foreach (IInteractableSP g in interactablesInRange)
         {
             if (g.tag == "box")
             {
@@ -188,7 +157,7 @@ public class PlayerController : NetworkBehaviour
                         if (dist < minDist)
                         {
                             minDist = dist;
-                            closestInteractable = hit.collider.gameObject.GetComponent<IInteractable>();
+                            closestInteractable = hit.collider.gameObject.GetComponent<IInteractableSP>();
                         }
                     }
                 }
@@ -210,14 +179,13 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    [Command]
     void CmdTakeItem()
     {
         if (closestInteractable == null)
         {
             return;
         }
-        Inventory inven = closestInteractable.GetComponent<Inventory>();
+        InventorySP inven = closestInteractable.GetComponent<InventorySP>();
         if (inven == null)
         {
             return;
@@ -230,18 +198,18 @@ public class PlayerController : NetworkBehaviour
         if (it.ID != CONSTANTS.NO_ITEM && it.ID != CONSTANTS.ITEM_DESTROYED)
         {
             heldItemID = it.ID;
+            updateItem(0, it.ID);
             inven.SetCont(CONSTANTS.NO_ITEM);
         }
     }
 
-    [Command]
     void CmdDestroyItem()
     {
         if (closestInteractable == null)
         {
             return;
         }
-        Inventory inven = closestInteractable.GetComponent<Inventory>();
+        InventorySP inven = closestInteractable.GetComponent<InventorySP>();
         if (inven == null)
         {
             return;
@@ -262,6 +230,7 @@ public class PlayerController : NetworkBehaviour
         //TODO more
         RL.writeInfo("Player " + name + " got an item! " + item);
         heldItemID = item.ID;
+        updateItem(0, item.ID);
     }
 
     #endregion
@@ -275,22 +244,6 @@ public class PlayerController : NetworkBehaviour
     public void TakeItem()
     {
         CmdTakeItem();
-    }
-
-    public override void OnStartLocalPlayer()
-    {
-        if (!isLocalPlayer)
-        {
-            return;
-        }
-
-        cam = Camera.main.transform;
-        //Setup follow cam
-        Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
-        c.m_LookAt = this.transform;
-        c.m_Follow = this.transform;
-
-        base.OnStartLocalPlayer();
     }
 
     void Move()
@@ -321,7 +274,7 @@ public class PlayerController : NetworkBehaviour
     {
         closestInteractable = null;
         float minDist = Mathf.Infinity;
-        foreach (IInteractable g in interactablesInRange)
+        foreach (IInteractableSP g in interactablesInRange)
         {
             if (g.tag == "box")
             {
@@ -341,7 +294,7 @@ public class PlayerController : NetworkBehaviour
                         if (dist < minDist)
                         {
                             minDist = dist;
-                            closestInteractable = hit.collider.gameObject.GetComponent<IInteractable>();
+                            closestInteractable = hit.collider.gameObject.GetComponent<IInteractableSP>();
                         }
                     }
                 }
@@ -362,13 +315,12 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    [TargetRpc]
     void TargetStartInteract()
     {
         // Start rummaging, wait for x amount of time then do it
         UIUp = true;
         Interacting = true;
-        invUI.STARTINVENTORY(closestInteractable.GetComponent<Inventory>(), this);
+        invUI.STARTINVENTORY(closestInteractable.GetComponent<InventorySP>(), this);
     }
 
     /// <summary>
@@ -377,7 +329,7 @@ public class PlayerController : NetworkBehaviour
     /// <param name="other">The other Collider involved in this collision.</param>
     void OnTriggerEnter(Collider other)
     {
-        IInteractable inte = other.GetComponent<IInteractable>();
+        IInteractableSP inte = other.GetComponent<IInteractableSP>();
 
         if (inte != null)
         {
@@ -404,7 +356,7 @@ public class PlayerController : NetworkBehaviour
     /// <param name="other">The other Collider involved in this collision.</param>
     void OnTriggerExit(Collider other)
     {
-        IInteractable inte = other.GetComponent<IInteractable>();
+        IInteractableSP inte = other.GetComponent<IInteractableSP>();
 
         if (inte != null)
         {

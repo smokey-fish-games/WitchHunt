@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d4ea77fe0f687a147bc158b032b04545, type: 3}
-  m_Name: Bible
+  m_Name: DESTROYED
   m_EditorClassIdentifier: 
-  ID: 3
-  name: Bible
+  ID: 1
+  name: 'Destroyed '
   isEvidence: 0
-  icon: {fileID: 21300000, guid: 31e4868c56cd8c84f97b1ad8344dfe25, type: 3}
+  icon: {fileID: 21300000, guid: ebd7c8c844f57e944ac902ea49f6a055, type: 3}
