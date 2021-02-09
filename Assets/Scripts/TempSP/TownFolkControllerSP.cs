@@ -2,11 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WitchControllerSP : NPCControllerSP
+public class TownFolkControllerSP : NPCControllerSP
 {
-
-
-
-
-
 }

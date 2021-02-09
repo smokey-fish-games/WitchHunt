@@ -14,6 +14,13 @@ public class NPCControllerSP : MonoBehaviour
         UNKNOWN
     }
 
+    bool initialized = false;
+
+    public bool male;
+    public string firstname;
+    public string lastname;
+    public int age;
+
     public int attitude;
 
     #region Variables
@@ -52,6 +59,15 @@ public class NPCControllerSP : MonoBehaviour
         RL = RobLogger.GetRobLogger();
     }
 
+    public void initialize(bool mf, string fn, string ln, int a)
+    {
+        initialized = true;
+        firstname = fn;
+        lastname = ln;
+        male = mf;
+        age = a;
+    }
+
     /// <summary>
     /// Start is called on the frame when a script is enabled just before
     /// any of the Update methods is called the first time.
@@ -59,6 +75,10 @@ public class NPCControllerSP : MonoBehaviour
     void Start()
     {
         cc = GetComponent<CharacterController>();
+        if (!initialized)
+        {
+            RL.writeWarning("NPC not initialized");
+        }
     }
 
     // Update is called once per frame
@@ -84,7 +104,7 @@ public class NPCControllerSP : MonoBehaviour
             hoz = Random.Range(-1f, 1f);
             ver = Random.Range(-1f, 1f);
             FramesToGo = Random.Range(MIN_SECONDS, MAX_SECONDS);
-            RL.writeInfo("NPC(" + name + ") moves for " + FramesToGo + "seconds - (" + hoz + "," + ver + ")");
+            // RL.writeInfo("NPC(" + name + ") moves for " + FramesToGo + "seconds - (" + hoz + "," + ver + ")");
         }
         else
         {

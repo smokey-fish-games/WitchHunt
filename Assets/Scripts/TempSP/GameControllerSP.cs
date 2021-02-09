@@ -6,6 +6,7 @@ public class GameControllerSP : MonoBehaviour
     #region Variables
     /* publics */
     public GameObject boxPrefab;
+    public LevelGeneratorSP lgen;
 
     /* privates */
     RobLogger RL;
@@ -22,7 +23,8 @@ public class GameControllerSP : MonoBehaviour
     void Start()
     {
         // Place box
-        SpawnBoxes(1);
+        SpawnBoxes(FindObjectsOfType<BuildingSP>().Length);
+        lgen.GenerateNPCS();
     }
 
     /// <summary>
@@ -54,7 +56,7 @@ public class GameControllerSP : MonoBehaviour
 
         for (int i = 0; i < number; i++)
         {
-            GameObject box = (GameObject)Instantiate(boxPrefab, allBoxSpawns[i].transform.position, Quaternion.identity);
+            GameObject box = (GameObject)Instantiate(boxPrefab, allBoxSpawns[i].transform.position, Quaternion.identity, allBoxSpawns[i].transform.parent.transform);
 
             InventorySP inv = box.GetComponent<InventorySP>();
             if (oneSpawned)
