@@ -31,7 +31,7 @@ public class PlayerController : NetworkBehaviour
     [SyncVar(hook = ("updateItem"))]
     int heldItemID;
 
-    [SyncVar(hook = ("Setname"))]
+    [SyncVar]
     public string playerName = "DefaultPlayerName";
     #endregion
     #endregion
@@ -114,6 +114,22 @@ public class PlayerController : NetworkBehaviour
         if (!isLocalPlayer)
         {
             return;
+        }
+
+        if (cam == null)
+        {
+            cam = Camera.main.transform;
+            //Setup follow cam
+            Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
+            if (c != null)
+            {
+                c.m_LookAt = this.transform;
+                c.m_Follow = this.transform;
+            }
+            else
+            {
+                cam = null;
+            }
         }
 
         if (UIUp)
@@ -277,21 +293,21 @@ public class PlayerController : NetworkBehaviour
         CmdTakeItem();
     }
 
-    public override void OnStartLocalPlayer()
-    {
-        if (!isLocalPlayer)
-        {
-            return;
-        }
+    // public override void OnStartLocalPlayer()
+    // {
+    //     if (!isLocalPlayer)
+    //     {
+    //         return;
+    //     }
 
-        cam = Camera.main.transform;
-        //Setup follow cam
-        Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
-        c.m_LookAt = this.transform;
-        c.m_Follow = this.transform;
+    //     cam = Camera.main.transform;
+    //     //Setup follow cam
+    //     Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
+    //     c.m_LookAt = this.transform;
+    //     c.m_Follow = this.transform;
 
-        base.OnStartLocalPlayer();
-    }
+    //     base.OnStartLocalPlayer();
+    // }
 
     void Move()
     {
@@ -424,6 +440,38 @@ public class PlayerController : NetworkBehaviour
         Vector3 offset = new Vector3(0f, 0f, .25f);
         // close enough
         Gizmos.DrawWireCube(this.transform.position + transform.forward + offset, new Vector3(2f, 2f, 1.5f));
+    }
+
+    #endregion
+
+    #region FromRoomCode
+
+    private MyNetworkLobby room;
+    private MyNetworkLobby Room
+    {
+        get
+        {
+            if (room != null) { return room; }
+            return room = NetworkManager.singleton as MyNetworkLobby;
+        }
+    }
+
+    public override void OnStartClient()
+    {
+        DontDestroyOnLoad(gameObject);
+
+        Room.GamePlayers.Add(this);
+    }
+
+    public override void OnStopClient()
+    {
+        Room.GamePlayers.Remove(this);
+    }
+
+    [Server]
+    public void SetDisplayName(string displayName)
+    {
+        this.playerName = displayName;
     }
 
     #endregion

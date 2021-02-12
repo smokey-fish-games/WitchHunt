@@ -81,12 +81,22 @@ public class MainMenuController : MonoBehaviour
     {
         MyNetworkLobby.OnClientConnected += HandleClientConnected;
         MyNetworkLobby.OnClientDisconnected += HandleClientDisconnected;
+        MyNetworkLobby.OnServerStopped += HandleClientDisconnected;
     }
 
     private void OnDisable()
     {
         MyNetworkLobby.OnClientConnected -= HandleClientConnected;
         MyNetworkLobby.OnClientDisconnected -= HandleClientDisconnected;
+        MyNetworkLobby.OnServerStopped -= HandleClientDisconnected;
+    }
+
+    public void DedicatedServer()
+    {
+        myNetworkLobby.StartServer();
+        mainmenu.SetActive(false);
+        multiplaymenu1.SetActive(false);
+        loading.SetActive(false);
     }
 
 
