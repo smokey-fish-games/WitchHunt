@@ -1,8 +1,9 @@
 ﻿using Mirror;
 using UnityEngine;
 using System.Collections.Generic;
+using SFG.NetworkSystem;
 
-public class GameController : NetworkBehaviour
+public class GameController : MyNetworkBehaviour2
 {
     #region Variables
     /* publics */

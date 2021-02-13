@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using Mirror;
+using SFG.NetworkSystem;
 
-public class NPCController : NetworkBehaviour
+public class NPCController : MyNetworkBehaviour2
 {
     #region Variables
     /* publics */

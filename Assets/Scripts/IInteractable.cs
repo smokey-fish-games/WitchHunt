@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using Mirror;
+using SFG.NetworkSystem;
 
-public class IInteractable : NetworkBehaviour
+public class IInteractable : MyNetworkBehaviour2
 {
     #region Variables
     /* publics */

@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using Mirror;
 using System.Collections.Generic;
+using SFG.NetworkSystem;
 
-public class PlayerController : NetworkBehaviour
+public class PlayerController : MyNetworkBehaviour2
 {
     #region Variables
     /* publics */
@@ -446,18 +447,19 @@ public class PlayerController : NetworkBehaviour
 
     #region FromRoomCode
 
-    private MyNetworkLobby room;
-    private MyNetworkLobby Room
+    private Lobby room;
+    private Lobby Room
     {
         get
         {
             if (room != null) { return room; }
-            return room = NetworkManager.singleton as MyNetworkLobby;
+            return room = NetworkManager.singleton as Lobby;
         }
     }
 
     public override void OnStartClient()
     {
+        base.OnStartClient();
         DontDestroyOnLoad(gameObject);
 
         Room.GamePlayers.Add(this);
@@ -465,6 +467,7 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnStopClient()
     {
+        base.OnStopClient();
         Room.GamePlayers.Remove(this);
     }
 
