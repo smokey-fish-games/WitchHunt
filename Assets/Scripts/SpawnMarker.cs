@@ -1,45 +1,48 @@
 using UnityEngine;
 using System.Linq;
 
-public class SpawnMarker : MonoBehaviour
+namespace SFG.WitchHunt
 {
-    public enum SpawnType
+    public class SpawnMarker : MonoBehaviour
     {
-        BOX,
-        NPC,
-        PLAYER
-    }
-
-    public Color spawnMarkerColor = Color.magenta;
-    public SpawnType typeToSpawnHere;
-
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = spawnMarkerColor;
-        Gizmos.DrawSphere(transform.position, .25f);
-        Gizmos.DrawWireCube(transform.position, new Vector3(1f, 1f, 1f));
-    }
-
-    private static SpawnMarker[] allSpawnMarkers = new SpawnMarker[0];
-    public static SpawnMarker[] GetAll()
-    {
-        if (allSpawnMarkers.Length == 0)
+        public enum SpawnType
         {
-            lock (allSpawnMarkers)
+            BOX,
+            NPC,
+            PLAYER
+        }
+
+        public Color spawnMarkerColor = Color.magenta;
+        public SpawnType typeToSpawnHere;
+
+
+        void OnDrawGizmos()
+        {
+            Gizmos.color = spawnMarkerColor;
+            Gizmos.DrawSphere(transform.position, .25f);
+            Gizmos.DrawWireCube(transform.position, new Vector3(1f, 1f, 1f));
+        }
+
+        private static SpawnMarker[] allSpawnMarkers = new SpawnMarker[0];
+        public static SpawnMarker[] GetAll()
+        {
+            if (allSpawnMarkers.Length == 0)
             {
-                if (allSpawnMarkers.Length == 0)
+                lock (allSpawnMarkers)
                 {
-                    allSpawnMarkers = FindObjectsOfType<SpawnMarker>();
+                    if (allSpawnMarkers.Length == 0)
+                    {
+                        allSpawnMarkers = FindObjectsOfType<SpawnMarker>();
+                    }
                 }
             }
+            return allSpawnMarkers;
         }
-        return allSpawnMarkers;
-    }
 
-    public static SpawnMarker[] GetAll(SpawnType typeFilter)
-    {
-        SpawnMarker[] all = GetAll();
-        return all.Where(c => c.typeToSpawnHere == typeFilter).ToArray();
+        public static SpawnMarker[] GetAll(SpawnType typeFilter)
+        {
+            SpawnMarker[] all = GetAll();
+            return all.Where(c => c.typeToSpawnHere == typeFilter).ToArray();
+        }
     }
 }

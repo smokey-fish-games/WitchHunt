@@ -1944,10 +1944,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "            Mode: <b>Offline</b>\n Network Address: <b>localhost</b>\n
-    Max Connections: <b>4</b>\nServer Tick Rate: <b>30</b>\n         Players: <b>0</b>\n 
-    Active Network: <b><color=red>FALSE</color></b>\n   Network Scene: <b></b>\n
-    Start Posistion: <b>0</b>"
+  m_text: "            Mode: <b>Offline</b>\n Network Address: <b>localhost</b>\nMax
+    Connections: <b>4</b>\nServer Tick Rate: <b>30</b>\n         Players: <b>0</b>\n 
+    Active Network: <b><color=red>FALSE</color></b>\n   Network Scene: <b></b>\nStart
+    Posistion: <b>0</b>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3564,7 +3564,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 1024.1, y: 118.4}
+  m_CellSize: {x: 890, y: 118.4}
   m_Spacing: {x: 5, y: 5}
   m_Constraint: 2
   m_ConstraintCount: 4
