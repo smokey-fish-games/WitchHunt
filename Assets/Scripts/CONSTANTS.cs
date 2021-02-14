@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt
 {
     public static class CONSTANTS

@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.SinglePlayer
 {
     public class IInteractable : MonoBehaviour
@@ -9,20 +12,36 @@ namespace SFG.WitchHunt.SinglePlayer
 
         /* privates */
         bool beingInteracted = false;
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
 
         #endregion
 
         /* All methods called by the above SyncVariables */
         void SetInteracted(bool oldValue, bool newValue)
         {
+            RL.writeTraceEntry(oldValue, newValue);
             beingInteracted = newValue;
+            RL.writeTraceExit(null);
         }
         /* Generic Code starts here i.e. Both Server/Client */
         #region Generic
 
         public virtual void Interact(PlayerController interactor)
         {
+            RL.writeTraceEntry(interactor);
             beingInteracted = true;
+            RL.writeTraceExit(null);
         }
         public bool isBeingInteracted()
         {
@@ -45,12 +64,16 @@ namespace SFG.WitchHunt.SinglePlayer
 
         public void StartInteraction()
         {
+            RL.writeTraceEntry();
             beingInteracted = true;
+            RL.writeTraceExit(null);
         }
 
         public void EndInteraction()
         {
+            RL.writeTraceEntry();
             beingInteracted = false;
+            RL.writeTraceExit(null);
         }
 
         #endregion

@@ -2,9 +2,11 @@
 using UnityEngine;
 using SFG.WitchHunt.NetworkSystem;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.MultiPlayer
 {
-
     public class GameController : SFGNetworkBehaviour
     {
         #region Variables
@@ -13,7 +15,19 @@ namespace SFG.WitchHunt.MultiPlayer
         public GameObject npcPrefab;
 
         /* privates */
-        RobLogger RL;
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
+
         GameObject[] ListOfBoxSpawns;
 
 
@@ -39,26 +53,8 @@ namespace SFG.WitchHunt.MultiPlayer
         /// </summary>
         void Start()
         {
-            if (isServer)
-            {
-                RL.writeInfo("GameController Server hello!!!");
-            }
-            if (isServerOnly)
-            {
-                RL.writeInfo("GameController ServerOnly hello!!!");
-            }
-            if (isClient)
-            {
-                RL.writeInfo("GameController Client hello!!!");
-            }
-            if (isClientOnly)
-            {
-                RL.writeInfo("GameController ClientOnly hello!!!");
-            }
-            if (isLocalPlayer)
-            {
-                RL.writeInfo("GameController LocalPlayer hello!!!");
-            }
+            RL.writeTraceEntry();
+            RL.writeInfo(RobLogger.LogLevel.VERBOSE, "(name=" + gameObject.name + ",netId=" + this.netId + ",isServer=" + isServer + ",isServerOnly=" + isServerOnly + ",isClient=" + isClient + ",isClientOnly=" + isClientOnly + ",isLocalPlayer=" + isLocalPlayer + ")");
 
             /* Server setup */
             if (isServer || isServerOnly)
@@ -67,14 +63,7 @@ namespace SFG.WitchHunt.MultiPlayer
                 SpawnBoxes(10);
                 SpawnNPCS(10);
             }
-        }
-
-        /// <summary>
-        /// Awake is called when the script instance is being loaded.
-        /// </summary>
-        void Awake()
-        {
-            RL = RobLogger.GetRobLogger();
+            RL.writeTraceExit(null);
         }
 
         #endregion
@@ -84,6 +73,7 @@ namespace SFG.WitchHunt.MultiPlayer
 
         void SpawnBoxes(int number)
         {
+            RL.writeTraceEntry(number);
             bool oneSpawned = false;
             if (number < 1)
             {
@@ -117,10 +107,12 @@ namespace SFG.WitchHunt.MultiPlayer
                 }
                 NetworkServer.Spawn(box);
             }
+            RL.writeTraceExit(null);
         }
 
         void SpawnNPCS(int number)
         {
+            RL.writeTraceEntry(number);
             if (number < 1)
             {
                 RL.writeError("Bad number of NPCS asked to be spawned " + number);
@@ -144,6 +136,7 @@ namespace SFG.WitchHunt.MultiPlayer
                 npc.GetComponent<NPCController>().NPCname = "NPC" + i;
                 NetworkServer.Spawn(npc);
             }
+            RL.writeTraceExit(null);
         }
 
         #endregion

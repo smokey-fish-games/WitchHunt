@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.SinglePlayer
 {
     public class GameController : MonoBehaviour
@@ -10,7 +13,18 @@ namespace SFG.WitchHunt.SinglePlayer
         public LevelGenerator lgen;
 
         /* privates */
-        RobLogger RL;
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
         GameObject[] ListOfBoxSpawns;
         #endregion
 
@@ -23,21 +37,16 @@ namespace SFG.WitchHunt.SinglePlayer
         /// </summary>
         void Start()
         {
+            RL.writeTraceEntry();
             // Place box
             SpawnBoxes(FindObjectsOfType<Building>().Length);
             lgen.GenerateNPCS();
-        }
-
-        /// <summary>
-        /// Awake is called when the script instance is being loaded.
-        /// </summary>
-        void Awake()
-        {
-            RL = RobLogger.GetRobLogger();
+            RL.writeTraceExit(null);
         }
 
         void SpawnBoxes(int number)
         {
+            RL.writeTraceEntry(number);
             bool oneSpawned = false;
             if (number < 1)
             {
@@ -70,6 +79,7 @@ namespace SFG.WitchHunt.SinglePlayer
                     inv.initialize(CONSTANTS.ITEM_SPELLBOOK);
                 }
             }
+            RL.writeTraceExit(null);
         }
         #endregion
         #region DebugFunctions

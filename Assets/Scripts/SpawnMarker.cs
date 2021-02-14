@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Linq;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt
 {
     public class SpawnMarker : MonoBehaviour

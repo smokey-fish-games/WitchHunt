@@ -3,13 +3,27 @@ using UnityEngine;
 using Mirror;
 using TMPro;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.NetworkSystem
 {
     public class LobbyPlayer : SFGNetworkBehaviour
     {
         [SyncVar(hook = nameof(updateTextField))]
         public string myDisName = "Player";
-        RobLogger RL;
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
 
         public Button readyUpButton;
         public Button startButton;
@@ -36,21 +50,24 @@ namespace SFG.WitchHunt.NetworkSystem
 
         void updateTextField(string oldValue, string newValue)
         {
-            WriteALog("updateTextField");
+            RL.writeTraceEntry(oldValue, newValue);
             myDisName = newValue;
             nameEnter.text = myDisName;
+            RL.writeTraceExit(null);
         }
 
         public void SetName(string newName)
         {
-            WriteALog("SetName");
+            RL.writeTraceEntry(newName);
             CmdSyncChar(newName, isLeader);
+            RL.writeTraceExit(null);
         }
 
         public void ClickReadyBut()
         {
-            WriteALog("ClickReadyBut");
+            RL.writeTraceEntry();
             CmdChangeReadyFlag();
+            RL.writeTraceExit(null);
         }
 
         /// <summary>
@@ -84,7 +101,8 @@ namespace SFG.WitchHunt.NetworkSystem
 
         public override void OnStartAuthority()
         {
-            WriteALog("OnStartAuthority");
+            RL.writeTraceEntry();
+
             CmdSyncChar(myDisName, isLeader);
             readyUpButton.interactable = true;
             nameEnter.interactable = true;
@@ -95,63 +113,60 @@ namespace SFG.WitchHunt.NetworkSystem
                 startButton.gameObject.SetActive(true);
                 startButton.onClick.AddListener(delegate { TryStart(); });
             }
+            RL.writeTraceExit(null);
         }
 
         public override void OnStartClient()
         {
-            WriteALog("OnStartClient");
+            RL.writeTraceEntry();
             Room.otherPlayers.Add(this);
             // reparent
             this.gameObject.transform.SetParent(room.lobbyPlayerParent.transform, false);
+            RL.writeTraceExit(null);
         }
 
         public override void OnStopClient()
         {
-            WriteALog("OnStopClient");
+            RL.writeTraceEntry();
             Room.otherPlayers.Remove(this);
-        }
-
-        void WriteALog(string mes)
-        {
-            string toWrite = string.Empty;
-            toWrite += "LobbyPlayer(" + myDisName + ") " + mes;
-            if (RL == null)
-            {
-                RL = RobLogger.GetRobLogger();
-            }
-            RL.writeInfo(toWrite);
+            RL.writeTraceExit(null);
         }
 
         [Command]
         private void CmdSyncChar(string name, bool lead)
         {
-            WriteALog("CmdSyncChar");
+            RL.writeTraceEntry(name, lead);
             myDisName = name;
             isLeader = lead;
+            RL.writeTraceExit(null);
         }
 
         [Command]
         public void CmdChangeReadyFlag()
         {
-            WriteALog("CmdChangeReadyFlag");
+            RL.writeTraceEntry();
             IsReady = !IsReady;
+            RL.writeTraceExit(null);
         }
 
         public void TryStart()
         {
-            WriteALog("TryStart");
+            RL.writeTraceEntry();
             if (!isLeader)
             {
+                RL.writeWarning("Someone other than the leader tried to start the game!");
                 return;
             }
             CmdStartGame();
+            RL.writeTraceExit(null);
         }
 
         [Command]
         void CmdStartGame()
         {
-            WriteALog("CmdStartGame");
+            RL.writeTraceEntry();
             Room.lobbyStartGame();
+            RL.writeTraceExit(null);
         }
     }
 }

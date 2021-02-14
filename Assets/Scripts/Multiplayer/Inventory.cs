@@ -2,6 +2,9 @@
 using System.Linq;
 using Mirror;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.MultiPlayer
 {
     public class Inventory : IInteractable
@@ -11,7 +14,18 @@ namespace SFG.WitchHunt.MultiPlayer
 
         /* privates */
         public Item item;
-        RobLogger RL;
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
 
         Color color;
         Renderer meshRenderer;
@@ -33,6 +47,7 @@ namespace SFG.WitchHunt.MultiPlayer
 
         void SetItem(int oldValue, int newValue)
         {
+            RL.writeTraceEntry(oldValue, newValue);
             if (newValue == CONSTANTS.NO_ITEM)
             {
                 item = null;
@@ -41,6 +56,7 @@ namespace SFG.WitchHunt.MultiPlayer
             {
                 item = Item.GetItem(newValue);
             }
+            RL.writeTraceExit(null);
         }
         #endregion
         /* Generic Code starts here i.e. Both Server/Client */
@@ -50,10 +66,6 @@ namespace SFG.WitchHunt.MultiPlayer
         {
             return item;
         }
-        void Awake()
-        {
-            RL = RobLogger.GetRobLogger();
-        }
 
         /// <summary>
         /// Start is called on the frame when a script is enabled just before
@@ -61,11 +73,13 @@ namespace SFG.WitchHunt.MultiPlayer
         /// </summary>
         void Start()
         {
+            RL.writeTraceEntry();
             if (meshRenderer == null)
             {
                 meshRenderer = GetComponent<MeshRenderer>();
             }
             originalColours = meshRenderer.materials.Select(x => x.color).ToArray();
+            RL.writeTraceExit(null);
         }
 
         public override void InRangeToBeTouched()
@@ -91,6 +105,7 @@ namespace SFG.WitchHunt.MultiPlayer
 
         public void initialize(int newItem)
         {
+            RL.writeTraceEntry(newItem);
             if (newItem == CONSTANTS.NO_ITEM)
             {
                 empty = true;
@@ -111,36 +126,40 @@ namespace SFG.WitchHunt.MultiPlayer
                     RL.writeError("Something tried to set the item of inventory " + this.name + " to " + newItem + " which returned null");
                 }
             }
+            RL.writeTraceExit(null);
         }
 
         public override void Interact(PlayerController interactor)
         {
-            RL.writeInfo("Inventory Interact");
+            RL.writeTraceEntry(interactor);
             if (isBeingInteracted())
             {
-                RL.writeInfo("Inventory already being fondled");
+                RL.writeWarning("Inventory already being fondled");
                 return;
             }
             base.Interact(interactor);
             rummage(interactor);
+            RL.writeTraceExit(null);
         }
 
         void rummage(PlayerController interactor)
         {
-            RL.writeInfo("Rummaging");
+            RL.writeTraceEntry(interactor);
             if (empty)
             {
-                RL.writeInfo("Inventory empty!");
+                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Inventory empty!");
                 return;
             }
 
             interactor.AddItem(item);
 
             SetCont(CONSTANTS.NO_ITEM);
+            RL.writeTraceExit(null);
         }
 
         public void SetCont(int newItem)
         {
+            RL.writeTraceEntry(newItem);
             if (newItem == CONSTANTS.NO_ITEM)
             {
                 empty = true;
@@ -161,6 +180,7 @@ namespace SFG.WitchHunt.MultiPlayer
                     RL.writeError("Something tried to set the item of inventory " + this.name + " to " + newItem + " which returned null");
                 }
             }
+            RL.writeTraceExit(null);
         }
         #endregion
         /* Code for Client only runs here i.e. ClientRPC and relevants */

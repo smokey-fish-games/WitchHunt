@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using SFG.WitchHunt.NetworkSystem;
 using Cinemachine;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.MultiPlayer
 {
     public class PlayerController : SFGNetworkBehaviour
@@ -16,7 +19,19 @@ namespace SFG.WitchHunt.MultiPlayer
         public CinemachineFreeLook camControl;
 
         /* privates */
-        RobLogger RL;
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
+
         MeshRenderer[] allRenderers;
         CharacterController cc;
         float speed = 6f;
@@ -46,14 +61,18 @@ namespace SFG.WitchHunt.MultiPlayer
 
         void updateItem(int oldItem, int newItem)
         {
+            RL.writeTraceEntry(oldItem, newItem);
             heldItemID = newItem;
             heldItem = Item.GetItem(heldItemID);
+            RL.writeTraceExit(null);
         }
 
         void Setname(string oldValue, string newValue)
         {
+            RL.writeTraceEntry(oldValue, newValue);
             playerName = newValue;
             gameObject.name = newValue;
+            RL.writeTraceExit(null);
         }
         #endregion
         /* Generic Code starts here i.e. Both Server/Client */
@@ -65,19 +84,14 @@ namespace SFG.WitchHunt.MultiPlayer
         /// </summary>
         void Start()
         {
+            RL.writeTraceEntry();
+            RL.writeInfo(RobLogger.LogLevel.VERBOSE, "(name=" + gameObject.name + ",netId=" + this.netId + ",isServer=" + isServer + ",isServerOnly=" + isServerOnly + ",isClient=" + isClient + ",isClientOnly=" + isClientOnly + ",isLocalPlayer=" + isLocalPlayer + ")");
+
             camer.SetActive(false); //Must not have multiple cameras
-            if (isServer)
-            {
-                RL.writeInfo("Player Server hello!!!");
-            }
-            if (isClient)
-            {
-                RL.writeInfo("Player Client hello!!!");
-            }
+
             if (isLocalPlayer)
             {
                 camer.SetActive(true); //We are this player so enable the camera
-                RL.writeInfo("Player LocalPlayer hello!!!");
             }
             else
             {
@@ -103,14 +117,7 @@ namespace SFG.WitchHunt.MultiPlayer
                 ren.material = m;
                 ren.UpdateGIMaterials();
             }
-        }
-
-        /// <summary>
-        /// Awake is called when the script instance is being loaded.
-        /// </summary>
-        void Awake()
-        {
-            RL = RobLogger.GetRobLogger();
+            RL.writeTraceExit(null);
         }
 
         // Update is called once per frame
@@ -157,16 +164,19 @@ namespace SFG.WitchHunt.MultiPlayer
         [Command]
         void CmdCancelInteract()
         {
+            RL.writeTraceEntry();
             closestInteractable.EndInteraction();
+            RL.writeTraceExit(null);
         }
 
         [Command]
         void CmdAttempInteract()
         {
+            RL.writeTraceEntry();
             closestInteractable = null;
             foreach (IInteractable i in interactablesInRange)
             {
-                RL.writeInfo("Server beleives IInteractable " + i.name + " is in range.");
+                RL.writeInfo(RobLogger.LogLevel.STANDARD, "Server believes IInteractable " + i.name + " is in range.");
             }
 
             float minDist = Mathf.Infinity;
@@ -181,7 +191,7 @@ namespace SFG.WitchHunt.MultiPlayer
 
                     if (Physics.Raycast(ray, out hit, minDist))
                     {
-                        Debug.Log("Hit " + hit.collider.name);
+                        RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Hit " + hit.collider.name);
                         if (hit.collider != null && hit.collider.tag == "box")
                         {
                             // Check if it's closest
@@ -212,23 +222,28 @@ namespace SFG.WitchHunt.MultiPlayer
                     TargetStartInteract();
                 }
             }
+            RL.writeTraceExit(null);
         }
 
         [Command]
         void CmdTakeItem()
         {
+            RL.writeTraceEntry();
             if (closestInteractable == null)
             {
+                RL.writeTraceExit(null);
                 return;
             }
             Inventory inven = closestInteractable.GetComponent<Inventory>();
             if (inven == null)
             {
+                RL.writeTraceExit(null);
                 return;
             }
             Item it = inven.getItem();
             if (it == null)
             {
+                RL.writeTraceExit(null);
                 return;
             }
             if (it.ID != CONSTANTS.NO_ITEM && it.ID != CONSTANTS.ITEM_DESTROYED)
@@ -236,36 +251,43 @@ namespace SFG.WitchHunt.MultiPlayer
                 heldItemID = it.ID;
                 inven.SetCont(CONSTANTS.NO_ITEM);
             }
+            RL.writeTraceExit(null);
         }
 
         [Command]
         void CmdDestroyItem()
         {
+            RL.writeTraceEntry();
             if (closestInteractable == null)
             {
+                RL.writeTraceExit(null);
                 return;
             }
             Inventory inven = closestInteractable.GetComponent<Inventory>();
             if (inven == null)
             {
+                RL.writeTraceExit(null);
                 return;
             }
             Item it = inven.getItem();
             if (it == null)
             {
+                RL.writeTraceExit(null);
                 return;
             }
             if (it.ID != CONSTANTS.NO_ITEM)
             {
                 inven.SetCont(CONSTANTS.ITEM_DESTROYED);
             }
+            RL.writeTraceExit(null);
         }
 
         public void AddItem(Item item)
         {
+            RL.writeTraceEntry(item);
             //TODO more
-            RL.writeInfo("Player " + name + " got an item! " + item);
             heldItemID = item.ID;
+            RL.writeTraceExit(null);
         }
 
         #endregion
@@ -274,11 +296,15 @@ namespace SFG.WitchHunt.MultiPlayer
 
         public void DestroyItem()
         {
+            RL.writeTraceEntry();
             CmdDestroyItem();
+            RL.writeTraceExit(null);
         }
         public void TakeItem()
         {
+            RL.writeTraceEntry();
             CmdTakeItem();
+            RL.writeTraceExit(null);
         }
 
         void Move()
@@ -307,6 +333,7 @@ namespace SFG.WitchHunt.MultiPlayer
 
         void AttempInteract()
         {
+            RL.writeTraceEntry();
             closestInteractable = null;
             float minDist = Mathf.Infinity;
             foreach (IInteractable g in interactablesInRange)
@@ -348,11 +375,13 @@ namespace SFG.WitchHunt.MultiPlayer
                     CmdAttempInteract();
                 }
             }
+            RL.writeTraceExit(null);
         }
 
         [TargetRpc]
         void TargetStartInteract()
         {
+            RL.writeTraceEntry();
             // Start rummaging, wait for x amount of time then do it
             UIUp = true;
             Interacting = true;
@@ -362,6 +391,7 @@ namespace SFG.WitchHunt.MultiPlayer
             }
 
             invUI.STARTINVENTORY(closestInteractable.GetComponent<Inventory>(), this);
+            RL.writeTraceExit(null);
         }
 
         /// <summary>
@@ -370,18 +400,21 @@ namespace SFG.WitchHunt.MultiPlayer
         /// <param name="other">The other Collider involved in this collision.</param>
         void OnTriggerEnter(Collider other)
         {
+            RL.writeTraceEntry(other);
             IInteractable inte = other.GetComponent<IInteractable>();
 
             if (inte != null)
             {
-                RL.writeInfo("Player " + name + " Interactable " + other.name + " in range!");
+                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Player " + name + " Interactable " + other.name + " in range!");
                 interactablesInRange.Add(inte);
                 inte.InRangeToBeTouched();
             }
+            RL.writeTraceExit(null);
         }
 
         public void CancelUI()
         {
+            RL.writeTraceEntry();
             if (Interacting)
             {
                 CmdCancelInteract();
@@ -389,6 +422,7 @@ namespace SFG.WitchHunt.MultiPlayer
             Interacting = false;
 
             UIUp = false;
+            RL.writeTraceExit(null);
         }
 
         /// <summary>
@@ -397,14 +431,16 @@ namespace SFG.WitchHunt.MultiPlayer
         /// <param name="other">The other Collider involved in this collision.</param>
         void OnTriggerExit(Collider other)
         {
+            RL.writeTraceEntry(other);
             IInteractable inte = other.GetComponent<IInteractable>();
 
             if (inte != null)
             {
-                RL.writeInfo("Player " + name + " Interactable " + other.name + " left range!");
+                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Player " + name + " Interactable " + other.name + " left range!");
                 interactablesInRange.Remove(inte);
                 inte.LeftRangeToBeTouched();
             }
+            RL.writeTraceExit(null);
         }
 
 
@@ -435,22 +471,27 @@ namespace SFG.WitchHunt.MultiPlayer
 
         public override void OnStartClient()
         {
+            RL.writeTraceEntry();
             base.OnStartClient();
             DontDestroyOnLoad(gameObject);
-
             Room.GamePlayers.Add(this);
+            RL.writeTraceExit(null);
         }
 
         public override void OnStopClient()
         {
+            RL.writeTraceEntry();
             base.OnStopClient();
             Room.GamePlayers.Remove(this);
+            RL.writeTraceExit(null);
         }
 
         [Server]
         public void SetDisplayName(string displayName)
         {
+            RL.writeTraceEntry(displayName);
             this.playerName = displayName;
+            RL.writeTraceExit(null);
         }
 
         #endregion

@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.SinglePlayer
 {
     public class LevelGenerator : MonoBehaviour
@@ -62,7 +65,18 @@ namespace SFG.WitchHunt.SinglePlayer
         public GameObject npcPrefab;
         public List<NPCController> allNPCS = new List<NPCController>();
 
-        RobLogger RL;
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
 
         struct NPCAttributes
         {
@@ -74,13 +88,16 @@ namespace SFG.WitchHunt.SinglePlayer
 
         void Awake()
         {
-            RL = RobLogger.GetRobLogger();
+            RL.writeTraceEntry();
             buildings = FindObjectsOfType<Building>();
-            RL.writeInfo("Will setup " + buildings.Length + " buildings!");
+            RL.writeInfo(RobLogger.LogLevel.STANDARD, "Will setup " + buildings.Length + " buildings!");
+            RL.writeTraceExit(null);
         }
 
         public void GenerateNPCS()
         {
+            RL.writeTraceEntry();
+
             for (int i = 0; i < buildings.Length; i++)
             {
                 List<NPCController> occupants = new List<NPCController>();
@@ -163,14 +180,17 @@ namespace SFG.WitchHunt.SinglePlayer
 
                 // Now put the NPCs in place
                 buildings[i].moveOccupantsToSpawns();
-                RL.writeInfo("Building " + buildings[i].name + " initialized with " + occupants.Count + " NPCS.");
+                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Building " + buildings[i].name + " initialized with " + occupants.Count + " NPCS.");
             }
 
-            RL.writeInfo("Generated " + allNPCS.Count + " NPCS across " + buildings.Length + " buildings");
+            RL.writeInfo(RobLogger.LogLevel.STANDARD, "Generated " + allNPCS.Count + " NPCs across " + buildings.Length + " buildings");
+            RL.writeTraceExit(null);
         }
 
         NPCAttributes createRandomNPC(bool forcedmale, bool forcedfemale, string enforcedLastName, bool child)
         {
+            RL.writeTraceEntry();
+
             NPCAttributes toReturn;
             bool male;
             string fn;
@@ -233,7 +253,7 @@ namespace SFG.WitchHunt.SinglePlayer
             toReturn.lastname = ln;
             toReturn.gender = male;
             toReturn.age = age;
-
+            RL.writeTraceExit(toReturn);
             return toReturn;
         }
     }

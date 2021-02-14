@@ -255,7 +255,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 969992768}
+      - m_Target: {fileID: 1955093283}
         m_MethodName: StartServer
         m_Mode: 1
         m_Arguments:
@@ -412,7 +412,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &124616189
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2333,7 +2333,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 969992768}
+      - m_Target: {fileID: 1955093283}
         m_MethodName: StartHost
         m_Mode: 1
         m_Arguments:
@@ -2463,7 +2463,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 969992768}
+      - m_Target: {fileID: 1955093283}
         m_MethodName: StartClient
         m_Mode: 1
         m_Arguments:
@@ -2522,7 +2522,6 @@ GameObject:
   - component: {fileID: 969992767}
   - component: {fileID: 969992765}
   - component: {fileID: 969992766}
-  - component: {fileID: 969992768}
   m_Layer: 0
   m_Name: Scripts
   m_TagString: Untagged
@@ -2595,7 +2594,6 @@ MonoBehaviour:
   GamePlayers: []
   gamePlayerPrefab: {fileID: 7197536999784838750, guid: 605e2d8e2f9f33e49a8b867b6b36d55d,
     type: 3}
-  debug: {fileID: 863070137}
 --- !u!4 &969992767
 Transform:
   m_ObjectHideFlags: 0
@@ -2610,23 +2608,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &969992768
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969992764}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a800414f15bd6e4db665add2e271cb9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  networkManager2: {fileID: 969992766}
-  controlPanel: {fileID: 413633760}
-  playerPanel: {fileID: 124616188}
-  loading: {fileID: 1894536948}
-  IPInput: {fileID: 1247356893}
 --- !u!1 &996839382
 GameObject:
   m_ObjectHideFlags: 0
@@ -2709,7 +2690,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 969992768}
+      - m_Target: {fileID: 1955093283}
         m_MethodName: StartSinglePlayer
         m_Mode: 1
         m_Arguments:
@@ -3686,7 +3667,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 969992768}
+      - m_Target: {fileID: 1955093283}
         m_MethodName: Quit
         m_Mode: 1
         m_Arguments:
@@ -4346,6 +4327,7 @@ GameObject:
   - component: {fileID: 1955093281}
   - component: {fileID: 1955093280}
   - component: {fileID: 1955093279}
+  - component: {fileID: 1955093283}
   m_Layer: 5
   m_Name: UIRoot
   m_TagString: Untagged
@@ -4434,6 +4416,23 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1955093283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1955093278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a800414f15bd6e4db665add2e271cb9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  networkManager2: {fileID: 969992766}
+  controlPanel: {fileID: 413633760}
+  playerPanel: {fileID: 124616188}
+  loading: {fileID: 1894536948}
+  IPInput: {fileID: 1247356893}
 --- !u!1 &1993846244
 GameObject:
   m_ObjectHideFlags: 0

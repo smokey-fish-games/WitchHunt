@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.SinglePlayer
 {
     public class NPCController : MonoBehaviour
@@ -41,7 +44,18 @@ namespace SFG.WitchHunt.SinglePlayer
         float MAX_SECONDS = 4f;
         float MIN_SECONDS = 1f;
 
-        RobLogger RL;
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
 
         /* Sync variables that are kept in sync on Client/Server */
         #region SyncVariables
@@ -55,18 +69,15 @@ namespace SFG.WitchHunt.SinglePlayer
         /* Generic Code starts here i.e. Both Server/Client */
         #region Generic
 
-        void Awake()
-        {
-            RL = RobLogger.GetRobLogger();
-        }
-
         public void initialize(bool mf, string fn, string ln, int a)
         {
+            RL.writeTraceEntry(mf, fn, ln, a);
             initialized = true;
             firstname = fn;
             lastname = ln;
             male = mf;
             age = a;
+            RL.writeTraceExit(null);
         }
 
         /// <summary>
@@ -75,11 +86,13 @@ namespace SFG.WitchHunt.SinglePlayer
         /// </summary>
         void Start()
         {
+            RL.writeTraceEntry();
             cc = GetComponent<CharacterController>();
             if (!initialized)
             {
                 RL.writeWarning("NPC not initialized");
             }
+            RL.writeTraceExit(null);
         }
 
         // Update is called once per frame

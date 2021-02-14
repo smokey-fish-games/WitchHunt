@@ -7,6 +7,9 @@ using TMPro;
 using System;
 using SFG.WitchHunt.MultiPlayer;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.NetworkSystem
 {
     public enum CURSCREEN
@@ -35,60 +38,17 @@ namespace SFG.WitchHunt.NetworkSystem
         public List<PlayerController> GamePlayers = new List<PlayerController>();
         [SerializeField] private PlayerController gamePlayerPrefab = null;
 
-        RobLogger RL;
-        public TMP_Text debug;
-
-
-        void WriteALog(string mes)
+        private RobLogger rl;
+        RobLogger RL
         {
-            string toWrite = string.Empty;
-            toWrite += "Lobby(" + this.mode + ") " + mes;
-            if (RL == null)
+            get
             {
-                RL = RobLogger.GetRobLogger();
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
             }
-            RL.writeInfo(toWrite);
-        }
-
-
-        // public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
-        NetworkManagerMode thisMode;
-        string netAddress;
-        int maxConns;
-        int servtickrate;
-        int numofPlayers;
-        bool iAmConned;
-        string curScene;
-        int startPos;
-
-        void PrepareDebug()
-        {
-            thisMode = this.mode;
-            netAddress = this.networkAddress;
-            maxConns = this.maxConnections;
-            servtickrate = this.serverTickRate;
-            numofPlayers = this.numPlayers;
-            iAmConned = this.isNetworkActive;
-            curScene = Lobby.networkSceneName;
-            startPos = Lobby.startPositionIndex;
-        }
-
-        void setDebug()
-        {
-            string toWrite = string.Empty;
-            debug.text = string.Empty;
-
-            toWrite += "            Mode: <b>" + thisMode + "</b>\n";
-            toWrite += " Network Address: <b>" + netAddress + "</b>\n";
-            toWrite += " Max Connections: <b>" + maxConns + "</b>\n";
-            toWrite += "Server Tick Rate: <b>" + servtickrate + "</b>\n";
-            toWrite += "         Players: <b>" + numofPlayers + "</b>\n";
-            toWrite += "  Active Network: <b>" + (iAmConned ? "<color=green>TRUE</color>" : "<color=red>FALSE</color>") + "</b>\n";
-            toWrite += "   Network Scene: <b>" + curScene + "</b>\n";
-            toWrite += " Start Posistion: <b>" + startPos + "</b>\n";
-            toWrite += "    otherPlayers: <b>" + otherPlayers.Count + "</b>\n";
-
-            debug.text = toWrite;
         }
 
         /// <summary>
@@ -98,9 +58,6 @@ namespace SFG.WitchHunt.NetworkSystem
         {
             if (starting)
                 return;
-
-            PrepareDebug();
-            setDebug();
 
             // Update topbar
             if (currentScreen == CURSCREEN.LOBBY)
@@ -163,18 +120,19 @@ namespace SFG.WitchHunt.NetworkSystem
         /// Called on the server when a new client connects.
         public override void OnServerConnect(NetworkConnection conn)
         {
-            WriteALog("OnServerConnect - Connection from: " + conn);
+            RL.writeTraceEntry(conn);
             if (numPlayers >= maxConnections)
             {
                 conn.Disconnect();
                 return;
             }
             // Check we in main menu
+            RL.writeTraceExit(null);
         }
 
         public override void OnServerDisconnect(NetworkConnection conn)
         {
-            WriteALog("OnServerDisconnect - Connection: " + conn);
+            RL.writeTraceEntry(conn);
             if (conn.identity != null)
             {
                 LobbyPlayer toRemove = conn.identity.GetComponent<LobbyPlayer>();
@@ -182,11 +140,12 @@ namespace SFG.WitchHunt.NetworkSystem
             }
 
             base.OnServerDisconnect(conn);
+            RL.writeTraceExit(null);
         }
 
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
-            WriteALog("OnServerAddPlayer: " + conn);
+            RL.writeTraceEntry(conn);
             LobbyPlayer roomPlayerInstance = Instantiate(lobbyPlayerPrefab, lobbyPlayerParent.transform);
             roomPlayerInstance.startButton = startButton;
 
@@ -200,97 +159,105 @@ namespace SFG.WitchHunt.NetworkSystem
                 otherPlayers.Add(roomPlayerInstance);
             }
 
-            WriteALog("Player(" + otherPlayers.Count + ") " + (otherPlayers.Count == 0 ? "" : "NOT ") + " Leader=" + conn);
+            RL.writeInfo(RobLogger.LogLevel.STANDARD, "Adding Player(" + otherPlayers.Count + ") " + (otherPlayers.Count == 0 ? "" : "NOT ") + " Leader=" + conn);
             NetworkServer.AddPlayerForConnection(conn, roomPlayerInstance.gameObject);
+            RL.writeTraceExit(null);
         }
 
         public override void OnStopServer()
         {
-            WriteALog("OnStopServer");
+            RL.writeTraceEntry();
             base.OnStopServer();
             OnDisconnected?.Invoke();
+            RL.writeTraceExit(null);
         }
 
         public override void OnStartServer()
         {
-            WriteALog("OnStartServer");
+            RL.writeTraceEntry();
             base.OnStartServer();
 
             if (this.mode == NetworkManagerMode.ServerOnly)
             {
                 OnConnected?.Invoke();
             }
+            RL.writeTraceExit(null);
         }
 
         public override void OnClientConnect(NetworkConnection conn)
         {
-            WriteALog("OnClientConnect - Connection from: " + conn);
+            RL.writeTraceEntry(conn);
             base.OnClientConnect(conn);
 
             OnConnected?.Invoke();
+            RL.writeTraceExit(null);
         }
 
         public override void OnClientDisconnect(NetworkConnection conn)
         {
-            WriteALog("OnClientDisconnect - Connection: " + conn);
+            RL.writeTraceEntry(conn);
             base.OnClientDisconnect(conn);
 
             OnDisconnected?.Invoke();
+            RL.writeTraceExit(null);
         }
 
         public override void OnClientError(NetworkConnection conn, int errorCode)
         {
-            WriteALog("OnClientError - Connection: " + conn + " | " + errorCode);
+            RL.writeTraceEntry(conn, errorCode);
             base.OnClientError(conn, errorCode);
 
             OnDisconnected?.Invoke();
+            RL.writeTraceExit(null);
         }
 
         public void DisconnectClicked()
         {
-            WriteALog("DisconnectClicked");
+            RL.writeTraceEntry();
             switch (this.mode)
             {
                 case NetworkManagerMode.Host:
-                    WriteALog("DisconnectClicked - Stopping Host");
                     this.StopHost();
                     break;
                 case NetworkManagerMode.ServerOnly:
-                    WriteALog("DisconnectClicked - Stopping Server");
                     this.StopServer();
                     break;
                 case NetworkManagerMode.ClientOnly:
-                    WriteALog("DisconnectClicked - Stopping Client");
                     this.StopClient();
                     break;
                 case NetworkManagerMode.Offline:
-                    WriteALog("DisconnectClicked - Already Offline");
                     break;
                 default:
-                    WriteALog("DisconnectClicked - Unknown mode: " + this.mode);
+                    RL.writeError("Unknown mode: " + this.mode);
                     break;
             }
+            RL.writeTraceExit(null);
         }
 
         public void lobbyStartGame()
         {
-            WriteALog("lobbyStartGame");
+            RL.writeTraceEntry();
 
             if (SceneManager.GetActiveScene().name == "MainMenu")
             {
                 if (!IsReadyToStart())
                 {
+                    RL.writeTraceExit(null);
                     return;
                 }
+                RL.writeInfo(RobLogger.LogLevel.STANDARD, "Server Starting game");
                 starting = true;
                 ServerChangeScene("TestBed");
             }
+            RL.writeTraceExit(null);
         }
 
         private bool IsReadyToStart()
         {
+            RL.writeTraceEntry();
             if (numPlayers == 0)
             {
+                RL.writeTraceExit(false);
                 return false;
             }
             foreach (LobbyPlayer p in otherPlayers)
@@ -300,15 +267,17 @@ namespace SFG.WitchHunt.NetworkSystem
                     return false;
                 }
             }
+            RL.writeTraceExit(true);
             return true;
         }
 
         public override void ServerChangeScene(string newSceneName)
         {
-            WriteALog("ServerChangeScene: " + newSceneName);
+            RL.writeTraceEntry(newSceneName);
             // From menu to game
             if (SceneManager.GetActiveScene().name == "MainMenu" && newSceneName == "TestBed")
             {
+                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Going from mainmeny to game");
                 for (int i = otherPlayers.Count - 1; i >= 0; i--)
                 {
                     var conn = otherPlayers[i].connectionToClient;
@@ -322,26 +291,29 @@ namespace SFG.WitchHunt.NetworkSystem
             }
 
             base.ServerChangeScene(newSceneName);
+            RL.writeTraceExit(null);
         }
 
         public override void OnServerChangeScene(string newSceneName)
         {
-            WriteALog("OnServerChangeScene: " + newSceneName);
+            RL.writeTraceEntry(newSceneName);
             if (SceneManager.GetActiveScene().name == "MainMenu" && newSceneName == "TestBed")
             {
                 OnGameStarting?.Invoke();
             }
             base.OnServerChangeScene(newSceneName);
+            RL.writeTraceExit(null);
         }
 
         public override void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling)
         {
-            WriteALog("OnClientChangeScene: " + newSceneName);
+            RL.writeTraceEntry(newSceneName, sceneOperation, customHandling);
             if (SceneManager.GetActiveScene().name == "MainMenu" && newSceneName == "TestBed")
             {
                 OnGameStarting?.Invoke();
             }
             base.OnClientChangeScene(newSceneName, sceneOperation, customHandling);
+            RL.writeTraceExit(null);
         }
     }
 }

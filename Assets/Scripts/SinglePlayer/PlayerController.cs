@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using Cinemachine;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.SinglePlayer
 {
     public class PlayerController : MonoBehaviour
@@ -12,7 +15,19 @@ namespace SFG.WitchHunt.SinglePlayer
         public Material teamMat;
 
         /* privates */
-        RobLogger RL;
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
+
         MeshRenderer[] allRenderers;
         CharacterController cc;
         Transform cam;
@@ -42,15 +57,17 @@ namespace SFG.WitchHunt.SinglePlayer
 
         void updateItem(int oldItem, int newItem)
         {
+            RL.writeTraceEntry(oldItem, newItem);
             heldItemID = newItem;
             heldItem = Item.GetItem(heldItemID);
+            RL.writeTraceExit(null);
         }
 
-        void Setname(string oldValue, string newValue)
-        {
-            playerName = newValue;
-            gameObject.name = newValue;
-        }
+        // void Setname(string oldValue, string newValue)
+        // {
+        //     playerName = newValue;
+        //     gameObject.name = newValue;
+        // }
         #endregion
         /* Generic Code starts here i.e. Both Server/Client */
         #region Generic
@@ -61,8 +78,9 @@ namespace SFG.WitchHunt.SinglePlayer
         /// </summary>
         void Start()
         {
-            cc = GetComponent<CharacterController>();
+            RL.writeTraceEntry();
 
+            cc = GetComponent<CharacterController>();
             invUI = FindObjectOfType<InventoryUI>();
 
             /* Setup colours */
@@ -81,14 +99,7 @@ namespace SFG.WitchHunt.SinglePlayer
             Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
             c.m_LookAt = this.transform;
             c.m_Follow = this.transform;
-        }
-
-        /// <summary>
-        /// Awake is called when the script instance is being loaded.
-        /// </summary>
-        void Awake()
-        {
-            RL = RobLogger.GetRobLogger();
+            RL.writeTraceExit(null);
         }
 
         // Update is called once per frame
@@ -124,36 +135,24 @@ namespace SFG.WitchHunt.SinglePlayer
             }
         }
 
-
-
-        /// <summary>
-        /// This function is called when the MonoBehaviour will be destroyed.
-        /// </summary>
-        void OnDestroy()
-        {
-            if (Camera.main != null)
-            {
-                Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
-                SpawnMarker s = SpawnMarker.GetAll(SpawnMarker.SpawnType.PLAYER)[0];
-                c.m_LookAt = s.transform;
-                c.m_Follow = s.transform;
-            }
-        }
         #endregion
 
         /* Code for Server only runs here i.e. Commands and relevants */
         #region Server
         void CmdCancelInteract()
         {
+            RL.writeTraceEntry();
             closestInteractable.EndInteraction();
+            RL.writeTraceExit(null);
         }
 
         void CmdAttempInteract()
         {
+            RL.writeTraceEntry();
             closestInteractable = null;
             foreach (IInteractable i in interactablesInRange)
             {
-                RL.writeInfo("Server beleives IInteractable " + i.name + " is in range.");
+                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Server beleives IInteractable " + i.name + " is in range.");
             }
 
             float minDist = Mathf.Infinity;
@@ -168,7 +167,7 @@ namespace SFG.WitchHunt.SinglePlayer
 
                     if (Physics.Raycast(ray, out hit, minDist))
                     {
-                        Debug.Log("Hit " + hit.collider.name);
+                        RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Hit " + hit.collider.name);
                         if (hit.collider != null && hit.collider.tag == "box")
                         {
                             // Check if it's closest
@@ -199,10 +198,12 @@ namespace SFG.WitchHunt.SinglePlayer
                     TargetStartInteract();
                 }
             }
+            RL.writeTraceExit(null);
         }
 
         void CmdTakeItem()
         {
+            RL.writeTraceEntry();
             if (closestInteractable == null)
             {
                 return;
@@ -223,10 +224,12 @@ namespace SFG.WitchHunt.SinglePlayer
                 updateItem(0, it.ID);
                 inven.SetCont(CONSTANTS.NO_ITEM);
             }
+            RL.writeTraceExit(null);
         }
 
         void CmdDestroyItem()
         {
+            RL.writeTraceEntry();
             if (closestInteractable == null)
             {
                 return;
@@ -245,14 +248,16 @@ namespace SFG.WitchHunt.SinglePlayer
             {
                 inven.SetCont(CONSTANTS.ITEM_DESTROYED);
             }
+            RL.writeTraceExit(null);
         }
 
         public void AddItem(Item item)
         {
+            RL.writeTraceEntry(item);
             //TODO more
-            RL.writeInfo("Player " + name + " got an item! " + item);
             heldItemID = item.ID;
             updateItem(0, item.ID);
+            RL.writeTraceExit(null);
         }
 
         #endregion
@@ -261,11 +266,15 @@ namespace SFG.WitchHunt.SinglePlayer
 
         public void DestroyItem()
         {
+            RL.writeTraceEntry();
             CmdDestroyItem();
+            RL.writeTraceExit(null);
         }
         public void TakeItem()
         {
+            RL.writeTraceEntry();
             CmdTakeItem();
+            RL.writeTraceExit(null);
         }
 
         void Move()
@@ -294,6 +303,7 @@ namespace SFG.WitchHunt.SinglePlayer
 
         void AttempInteract()
         {
+            RL.writeTraceEntry();
             closestInteractable = null;
             float minDist = Mathf.Infinity;
             foreach (IInteractable g in interactablesInRange)
@@ -335,14 +345,17 @@ namespace SFG.WitchHunt.SinglePlayer
                     CmdAttempInteract();
                 }
             }
+            RL.writeTraceExit(null);
         }
 
         void TargetStartInteract()
         {
+            RL.writeTraceEntry();
             // Start rummaging, wait for x amount of time then do it
             UIUp = true;
             Interacting = true;
             invUI.STARTINVENTORY(closestInteractable.GetComponent<Inventory>(), this);
+            RL.writeTraceExit(null);
         }
 
         /// <summary>
@@ -351,18 +364,21 @@ namespace SFG.WitchHunt.SinglePlayer
         /// <param name="other">The other Collider involved in this collision.</param>
         void OnTriggerEnter(Collider other)
         {
+            RL.writeTraceEntry(other);
             IInteractable inte = other.GetComponent<IInteractable>();
 
             if (inte != null)
             {
-                RL.writeInfo("Player " + name + " Interactable " + other.name + " in range!");
+                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Player " + name + " Interactable " + other.name + " in range!");
                 interactablesInRange.Add(inte);
                 inte.InRangeToBeTouched();
             }
+            RL.writeTraceExit(null);
         }
 
         public void CancelUI()
         {
+            RL.writeTraceEntry();
             if (Interacting)
             {
                 CmdCancelInteract();
@@ -370,6 +386,7 @@ namespace SFG.WitchHunt.SinglePlayer
             Interacting = false;
 
             UIUp = false;
+            RL.writeTraceExit(null);
         }
 
         /// <summary>
@@ -378,14 +395,16 @@ namespace SFG.WitchHunt.SinglePlayer
         /// <param name="other">The other Collider involved in this collision.</param>
         void OnTriggerExit(Collider other)
         {
+            RL.writeTraceEntry(other);
             IInteractable inte = other.GetComponent<IInteractable>();
 
             if (inte != null)
             {
-                RL.writeInfo("Player " + name + " Interactable " + other.name + " left range!");
+                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Player " + name + " Interactable " + other.name + " left range!");
                 interactablesInRange.Remove(inte);
                 inte.LeftRangeToBeTouched();
             }
+            RL.writeTraceExit(null);
         }
 
 

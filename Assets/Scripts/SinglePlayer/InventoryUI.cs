@@ -2,6 +2,9 @@
 using UnityEngine.UI;
 using System.Collections;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.SinglePlayer
 {
     public class InventoryUI : MonoBehaviour

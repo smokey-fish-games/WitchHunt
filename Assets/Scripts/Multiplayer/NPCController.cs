@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using SFG.WitchHunt.NetworkSystem;
 
+//  
+// Copyright (c) Robert Parker 2021. All rights reserved.  
+//  
 namespace SFG.WitchHunt.MultiPlayer
 {
     public class NPCController : SFGNetworkBehaviour
@@ -24,7 +27,18 @@ namespace SFG.WitchHunt.MultiPlayer
         float MAX_SECONDS = 4f;
         float MIN_SECONDS = 1f;
 
-        RobLogger RL;
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
 
         /* Sync variables that are kept in sync on Client/Server */
         #region SyncVariables
@@ -38,30 +52,16 @@ namespace SFG.WitchHunt.MultiPlayer
         /* Generic Code starts here i.e. Both Server/Client */
         #region Generic
 
-        void Awake()
-        {
-            RL = RobLogger.GetRobLogger();
-        }
-
         /// <summary>
         /// Start is called on the frame when a script is enabled just before
         /// any of the Update methods is called the first time.
         /// </summary>
         void Start()
         {
-            if (isServer)
-            {
-                RL.writeInfo("NPC Server hello!!!");
-            }
-            if (isClient)
-            {
-                RL.writeInfo("NPC Client hello!!!");
-            }
-            if (isLocalPlayer)
-            {
-                RL.writeInfo("NPC LocalPlayer hello!!!");
-            }
+            RL.writeTraceEntry();
+            RL.writeInfo(RobLogger.LogLevel.VERBOSE, "(name=" + gameObject.name + ",netId=" + this.netId + ",isServer=" + isServer + ",isServerOnly=" + isServerOnly + ",isClient=" + isClient + ",isClientOnly=" + isClientOnly + ",isLocalPlayer=" + isLocalPlayer + ")");
             cc = GetComponent<CharacterController>();
+            RL.writeTraceExit(null);
         }
 
         // Update is called once per frame
