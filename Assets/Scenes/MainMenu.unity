@@ -2584,7 +2584,6 @@ MonoBehaviour:
   - {fileID: 1851837952513052433, guid: 928700ef6d54935438e4911e0f987c7e, type: 3}
   - {fileID: 8534762156825778906, guid: 829c5ba3562d8534faf2541a911351e0, type: 3}
   - {fileID: 8043593734061932856, guid: e617607a6dcd8b64e870011e1c8bdc38, type: 3}
-  - {fileID: 7197536999784838744, guid: 605e2d8e2f9f33e49a8b867b6b36d55d, type: 3}
   ConnectedStats: {fileID: 132865463}
   ReadyStats: {fileID: 1169581178}
   startButton: {fileID: 876419047}

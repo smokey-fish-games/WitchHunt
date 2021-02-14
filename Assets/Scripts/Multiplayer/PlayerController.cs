@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Mirror;
 using System.Collections.Generic;
 using SFG.WitchHunt.NetworkSystem;
+using Cinemachine;
 
 namespace SFG.WitchHunt.MultiPlayer
 {
@@ -11,12 +12,13 @@ namespace SFG.WitchHunt.MultiPlayer
         /* publics */
         public Material playerMat;
         public Material teamMat;
+        public GameObject camer;
+        public CinemachineFreeLook camControl;
 
         /* privates */
         RobLogger RL;
         MeshRenderer[] allRenderers;
         CharacterController cc;
-        Transform cam;
         float speed = 6f;
         float turnSmoothTime = 0.1f;
         float turnSmoothVelocity;
@@ -63,6 +65,7 @@ namespace SFG.WitchHunt.MultiPlayer
         /// </summary>
         void Start()
         {
+            camer.SetActive(false); //Must not have multiple cameras
             if (isServer)
             {
                 RL.writeInfo("Player Server hello!!!");
@@ -73,6 +76,7 @@ namespace SFG.WitchHunt.MultiPlayer
             }
             if (isLocalPlayer)
             {
+                camer.SetActive(true); //We are this player so enable the camera
                 RL.writeInfo("Player LocalPlayer hello!!!");
             }
             else
@@ -81,8 +85,6 @@ namespace SFG.WitchHunt.MultiPlayer
             }
 
             cc = GetComponent<CharacterController>();
-
-            invUI = FindObjectOfType<InventoryUI>();
 
             /* Setup colours */
             allRenderers = GetComponentsInChildren<MeshRenderer>();
@@ -119,26 +121,26 @@ namespace SFG.WitchHunt.MultiPlayer
                 return;
             }
 
-            if (cam == null)
-            {
-                cam = Camera.main.transform;
-                //Setup follow cam
-                Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
-                if (c != null)
-                {
-                    c.m_LookAt = this.transform;
-                    c.m_Follow = this.transform;
-                }
-                else
-                {
-                    cam = null;
-                }
-            }
-
             if (UIUp)
             {
+                camControl.m_XAxis.m_MaxSpeed = 0;
+                camControl.m_YAxis.m_MaxSpeed = 0;
                 /* UI will manage how to stop */
                 return;
+            }
+
+            /* Camera Controls */
+            if (camControl.m_YAxis.m_MaxSpeed == 0)
+            {
+                camControl.m_YAxis.m_MaxSpeed = 1;
+            }
+            if (Input.GetMouseButtonDown(1))
+            {
+                camControl.m_XAxis.m_MaxSpeed = 2;
+            }
+            if (Input.GetMouseButtonUp(1))
+            {
+                camControl.m_XAxis.m_MaxSpeed = 0;
             }
 
             Move();
@@ -147,23 +149,6 @@ namespace SFG.WitchHunt.MultiPlayer
                 AttempInteract();
             }
         }
-
-        // /// <summary>
-        // /// This function is called when the MonoBehaviour will be destroyed.
-        // /// </summary>
-        // void OnDestroy()
-        // {
-        //     if (isLocalPlayer)
-        //     {
-        //         if (Camera.main != null)
-        //         {
-        //             Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
-        //             SpawnMarker s = SpawnMarker.GetAll(SpawnMarker.SpawnType.PLAYER)[0];
-        //             c.m_LookAt = s.transform;
-        //             c.m_Follow = s.transform;
-        //         }
-        //     }
-        // }
         #endregion
 
         /* Code for Server only runs here i.e. Commands and relevants */
@@ -296,22 +281,6 @@ namespace SFG.WitchHunt.MultiPlayer
             CmdTakeItem();
         }
 
-        // public override void OnStartLocalPlayer()
-        // {
-        //     if (!isLocalPlayer)
-        //     {
-        //         return;
-        //     }
-
-        //     cam = Camera.main.transform;
-        //     //Setup follow cam
-        //     Cinemachine.CinemachineFreeLook c = Camera.main.GetComponent<Cinemachine.CinemachineFreeLook>();
-        //     c.m_LookAt = this.transform;
-        //     c.m_Follow = this.transform;
-
-        //     base.OnStartLocalPlayer();
-        // }
-
         void Move()
         {
             if (!cc.isGrounded)
@@ -326,7 +295,7 @@ namespace SFG.WitchHunt.MultiPlayer
 
             if (dir.magnitude >= 0.1f)
             {
-                float targetAngle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+                float targetAngle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg + camer.transform.eulerAngles.y;
                 float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
                 transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
@@ -387,6 +356,11 @@ namespace SFG.WitchHunt.MultiPlayer
             // Start rummaging, wait for x amount of time then do it
             UIUp = true;
             Interacting = true;
+            if (invUI == null)
+            {
+                invUI = FindObjectOfType<InventoryUI>();
+            }
+
             invUI.STARTINVENTORY(closestInteractable.GetComponent<Inventory>(), this);
         }
 

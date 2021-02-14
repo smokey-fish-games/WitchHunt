@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Cinemachine;
 
 namespace SFG.WitchHunt.SinglePlayer
 {
@@ -15,6 +16,7 @@ namespace SFG.WitchHunt.SinglePlayer
         MeshRenderer[] allRenderers;
         CharacterController cc;
         Transform cam;
+        public CinemachineFreeLook camControl;
         float speed = 6f;
         float turnSmoothTime = 0.1f;
         float turnSmoothVelocity;
@@ -94,9 +96,26 @@ namespace SFG.WitchHunt.SinglePlayer
         {
             if (UIUp)
             {
+                camControl.m_XAxis.m_MaxSpeed = 0;
+                camControl.m_YAxis.m_MaxSpeed = 0;
                 /* UI will manage how to stop */
                 return;
             }
+
+            /* Camera Controls */
+            if (camControl.m_YAxis.m_MaxSpeed == 0)
+            {
+                camControl.m_YAxis.m_MaxSpeed = 1;
+            }
+            if (Input.GetMouseButtonDown(1))
+            {
+                camControl.m_XAxis.m_MaxSpeed = 2;
+            }
+            if (Input.GetMouseButtonUp(1))
+            {
+                camControl.m_XAxis.m_MaxSpeed = 0;
+            }
+
 
             Move();
             if (Input.GetKeyDown(KeyCode.Space))
@@ -104,6 +123,8 @@ namespace SFG.WitchHunt.SinglePlayer
                 AttempInteract();
             }
         }
+
+
 
         /// <summary>
         /// This function is called when the MonoBehaviour will be destroyed.
