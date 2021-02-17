@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3481303281571289290}
   - component: {fileID: 3157071284814845490}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: BottomRig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24,8 +24,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 760433060003370788}
-  m_LocalRotation: {x: -0.018141463, y: 0.000000029802322, z: -0.000000009313226,
-    w: 0.9998355}
+  m_LocalRotation: {x: -0.01814151, y: 0.000000059604645, z: -0.000000014901161, w: 0.9998355}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -87,7 +86,7 @@ GameObject:
   - component: {fileID: 669314532967060706}
   - component: {fileID: 2018810962871031517}
   - component: {fileID: 2308123124483832871}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: cm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -213,7 +212,7 @@ GameObject:
   - component: {fileID: 6672006430058419416}
   - component: {fileID: 4139593638826329187}
   - component: {fileID: 365018928741444966}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: cm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -337,7 +336,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8780583588432716352}
   - component: {fileID: 2814453838041926387}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: MiddleRig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -351,7 +350,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3522762631704154449}
-  m_LocalRotation: {x: 0.000000016298143, y: -0, z: -0.000000005587935, w: 1}
+  m_LocalRotation: {x: -0.00000006146728, y: 0.000000029802319, z: -0.000000014901159,
+    w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -411,7 +411,7 @@ GameObject:
   m_Component:
   - component: {fileID: 905530082557521103}
   - component: {fileID: 653235608145302502}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: TopRig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -425,7 +425,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3551120746294265959}
-  m_LocalRotation: {x: 0.018189484, y: -0, z: -0.000000007450581, w: 0.9998346}
+  m_LocalRotation: {x: 0.018189419, y: 0.000000044703484, z: -0.000000013038516, w: 0.9998346}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -488,7 +488,7 @@ GameObject:
   - component: {fileID: 1436875149796888252}
   - component: {fileID: 3511111363374246736}
   - component: {fileID: 3395127109210327255}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -502,7 +502,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6117185075963305786}
-  m_LocalRotation: {x: -0.03222349, y: 0.9640889, z: -0.13850206, w: -0.22430216}
+  m_LocalRotation: {x: -0.03222348, y: 0.9640889, z: -0.13850202, w: -0.22430219}
   m_LocalPosition: {x: 10.594093, y: 8, z: 21.53521}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -709,7 +709,7 @@ GameObject:
   - component: {fileID: 7197536998245449067}
   - component: {fileID: 7197536998245449064}
   - component: {fileID: 7197536998245449065}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Model
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -790,7 +790,7 @@ GameObject:
   - component: {fileID: 7197536999784838749}
   - component: {fileID: 6044911716253328282}
   - component: {fileID: 4184147549603729795}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: PlayerSP
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -872,7 +872,7 @@ GameObject:
   - component: {fileID: 7197536999935936763}
   - component: {fileID: 7197536999935936761}
   - component: {fileID: 7197536999935936762}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -952,7 +952,7 @@ GameObject:
   - component: {fileID: 4514624636410927138}
   - component: {fileID: 2880352524458728070}
   - component: {fileID: 4592177326909357615}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: cm
   m_TagString: Untagged
   m_Icon: {fileID: 0}

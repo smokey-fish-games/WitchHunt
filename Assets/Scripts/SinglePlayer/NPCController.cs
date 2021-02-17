@@ -5,7 +5,7 @@
 //  
 namespace SFG.WitchHunt.SinglePlayer
 {
-    public class NPCController : MonoBehaviour
+    public class NPCController : IInteractable
     {
         public enum RELATION
         {
@@ -23,6 +23,7 @@ namespace SFG.WitchHunt.SinglePlayer
         public bool male;
         public string firstname;
         public string lastname;
+        public string fullName;
         public int age;
 
         public int attitude;
@@ -43,6 +44,8 @@ namespace SFG.WitchHunt.SinglePlayer
 
         float MAX_SECONDS = 4f;
         float MIN_SECONDS = 1f;
+
+        DialogSystem dialogSystem = new DialogSystem();
 
         private RobLogger rl;
         RobLogger RL
@@ -75,6 +78,8 @@ namespace SFG.WitchHunt.SinglePlayer
             initialized = true;
             firstname = fn;
             lastname = ln;
+            fullName = firstname + " " + lastname;
+            this.gameObject.name = fullName;
             male = mf;
             age = a;
             RL.writeTraceExit(null);
@@ -99,7 +104,14 @@ namespace SFG.WitchHunt.SinglePlayer
         void Update()
         {
             /* Only server should move! */
-            MoveNPC();
+            if (isBeingInteracted())
+            {
+                // It's rude to walk away from someone talking to you...
+            }
+            else
+            {
+                MoveNPC();
+            }
         }
 
         #endregion
@@ -142,6 +154,47 @@ namespace SFG.WitchHunt.SinglePlayer
         #endregion
         /* Code for Client only runs here i.e. ClientRPC and relevants */
         #region Client
+
+        public override void EndInteraction()
+        {
+            RL.writeTraceEntry();
+            base.EndInteraction();
+            ResetDialogs();
+            RL.writeTraceExit(null);
+        }
+
+        public string GetDialogQuestion(int branch)
+        {
+            RL.writeTraceEntry(branch);
+            string toBack = dialogSystem.GetDialogTreeQuestion(branch);
+            RL.writeTraceExit(toBack);
+            return toBack;
+        }
+
+        public string GetDialogResponse(int branch)
+        {
+            RL.writeTraceEntry(branch);
+            DialogSystem.dialogResponse TheBack = dialogSystem.GetDialogTreeResponse(branch);
+            attitude += TheBack.attitudeChange;
+            if (attitude > 100)
+            {
+                attitude = 100;
+            }
+            else if (attitude < -100)
+            {
+                attitude = -100;
+            }
+            string toBack = TheBack.answer;
+            RL.writeTraceExit(toBack);
+            return toBack;
+        }
+
+        public void ResetDialogs()
+        {
+            RL.writeTraceEntry();
+            dialogSystem.ResetDialogs();
+            RL.writeTraceExit(null);
+        }
 
         #endregion
         #region DebugFunctions

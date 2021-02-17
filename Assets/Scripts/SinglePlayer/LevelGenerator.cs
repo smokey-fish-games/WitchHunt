@@ -61,6 +61,8 @@ namespace SFG.WitchHunt.SinglePlayer
 
         const int MAX_OCCUPANTS = 4;
 
+        int currentLNpointer = 0;
+
         public Building[] buildings;
         public GameObject npcPrefab;
         public List<NPCController> allNPCS = new List<NPCController>();
@@ -89,6 +91,7 @@ namespace SFG.WitchHunt.SinglePlayer
         void Awake()
         {
             RL.writeTraceEntry();
+            CONSTANTS.Shuffle(lastNames);
             buildings = FindObjectsOfType<Building>();
             RL.writeInfo(RobLogger.LogLevel.STANDARD, "Will setup " + buildings.Length + " buildings!");
             RL.writeTraceExit(null);
@@ -233,7 +236,8 @@ namespace SFG.WitchHunt.SinglePlayer
 
             if (enforcedLastName.Length == 0)
             {
-                ln = lastNames[Random.Range(0, lastNames.Length)];
+                ln = lastNames[currentLNpointer];
+                currentLNpointer++;
             }
             else
             {

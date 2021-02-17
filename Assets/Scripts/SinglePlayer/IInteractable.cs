@@ -62,14 +62,14 @@ namespace SFG.WitchHunt.SinglePlayer
         /* Code for Server only runs here i.e. Commands and relevants */
         #region Server
 
-        public void StartInteraction()
+        public virtual void StartInteraction()
         {
             RL.writeTraceEntry();
             beingInteracted = true;
             RL.writeTraceExit(null);
         }
 
-        public void EndInteraction()
+        public virtual void EndInteraction()
         {
             RL.writeTraceEntry();
             beingInteracted = false;

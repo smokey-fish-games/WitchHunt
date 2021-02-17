@@ -5,10 +5,22 @@ using System.Collections;
 //  
 // Copyright (c) Robert Parker 2021. All rights reserved.  
 //  
-namespace SFG.WitchHunt.SinglePlayer
+namespace SFG.WitchHunt.SinglePlayer.UI
 {
     public class InventoryUI : MonoBehaviour
     {
+        private RobLogger rl;
+        RobLogger RL
+        {
+            get
+            {
+                if (rl != null)
+                {
+                    return rl;
+                }
+                return rl = RobLogger.GetRobLogger();
+            }
+        }
         public float secondsToRummage = 10f;
         public GameObject rummageUI;
         public GameObject disUI;
@@ -22,6 +34,7 @@ namespace SFG.WitchHunt.SinglePlayer
 
         public void STARTINVENTORY(Inventory theInv, PlayerController callback)
         {
+            RL.writeTraceEntry(theInv, callback);
             /* Reset state */
             StopCoroutine("RummageShow");
             callbacke = callback;
@@ -44,6 +57,7 @@ namespace SFG.WitchHunt.SinglePlayer
             }
 
             StartCoroutine("RummageShow");
+            RL.writeTraceExit(null);
         }
 
         IEnumerator RummageShow()
@@ -63,22 +77,33 @@ namespace SFG.WitchHunt.SinglePlayer
 
         public void Close()
         {
+            RL.writeTraceEntry();
             StopCoroutine("RummageShow");
             disUI.SetActive(false);
             rummageUI.SetActive(false);
-            callbacke.CancelUI();
+            if (callbacke != null)
+            {
+                callbacke.CancelUI();
+            }
+
+            callbacke = null;
+            RL.writeTraceExit(null);
         }
 
         public void Take()
         {
+            RL.writeTraceEntry();
             callbacke.TakeItem();
             Close();
+            RL.writeTraceExit(null);
         }
 
         public void DestroyItem()
         {
+            RL.writeTraceEntry();
             callbacke.DestroyItem();
             Close();
+            RL.writeTraceExit(null);
         }
     }
 }

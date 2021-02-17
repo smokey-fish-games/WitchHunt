@@ -29,6 +29,7 @@ namespace SFG.WitchHunt.SinglePlayer
             RL.writeTraceEntry(occ);
             occupants = occ;
             NPCSpawners = GetComponentsInChildren<SpawnMarker>();
+            this.gameObject.name = (occ.Count == 0 ? "Unoccupied" : occ[0].lastname + " House");
             RL.writeTraceExit(null);
         }
 

@@ -48,7 +48,7 @@ namespace SFG
         const int MessageColumnStart = 60;
 
         LogLevel levelsToLog = LogLevel.ALWAYS | LogLevel.STANDARD;
-        //LogLevel levelsToLog = LogLevel.ALWAYS | LogLevel.STANDARD | LogLevel.VERBOSE;
+        // LogLevel levelsToLog = LogLevel.ALWAYS | LogLevel.STANDARD | LogLevel.VERBOSE;
         //LogLevel levelsToLog = LogLevel.ALWAYS | LogLevel.STANDARD | LogLevel.VERBOSE | LogLevel.TRACE;
         //LogLevel levelsToLog = LogLevel.TRACE;
 

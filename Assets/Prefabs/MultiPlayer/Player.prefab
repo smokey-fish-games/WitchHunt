@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6535723704486605321}
   - component: {fileID: 3689136098283591814}
   - component: {fileID: 884531765870166287}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: cm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -138,7 +138,7 @@ GameObject:
   - component: {fileID: 8872038640495733358}
   - component: {fileID: 241230245232381250}
   - component: {fileID: 4698190287880883134}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: cm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -262,7 +262,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2913261444039778850}
   - component: {fileID: 8159140537377699410}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: MiddleRig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -339,7 +339,7 @@ GameObject:
   - component: {fileID: 3364963005079758690}
   - component: {fileID: 8163041098545441720}
   - component: {fileID: 2142989910223842842}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: cm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -466,7 +466,7 @@ GameObject:
   - component: {fileID: 470406169170101627}
   - component: {fileID: 2968520155671116190}
   - component: {fileID: 3772467764868371996}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -686,7 +686,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7332293566372710196}
   - component: {fileID: 4643887198518563567}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: TopRig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -761,7 +761,7 @@ GameObject:
   - component: {fileID: 7197536998245449067}
   - component: {fileID: 7197536998245449064}
   - component: {fileID: 7197536998245449065}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Model
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -844,7 +844,7 @@ GameObject:
   - component: {fileID: -7196321451129843523}
   - component: {fileID: 2720909036132308375}
   - component: {fileID: 6044911716253328282}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -963,7 +963,7 @@ GameObject:
   - component: {fileID: 7197536999935936763}
   - component: {fileID: 7197536999935936761}
   - component: {fileID: 7197536999935936762}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1041,7 +1041,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2944267085864060046}
   - component: {fileID: 1739005365324925936}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: BottomRig
   m_TagString: Untagged
   m_Icon: {fileID: 0}

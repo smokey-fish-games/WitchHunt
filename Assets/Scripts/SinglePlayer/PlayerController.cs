@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using Cinemachine;
+using SFG.WitchHunt.SinglePlayer.UI;
 
 //  
 // Copyright (c) Robert Parker 2021. All rights reserved.  
@@ -36,7 +37,7 @@ namespace SFG.WitchHunt.SinglePlayer
         float turnSmoothTime = 0.1f;
         float turnSmoothVelocity;
         public Item heldItem;
-        InventoryUI invUI;
+        UIController uis;
 
         bool UIUp = false;
         bool Interacting = false;
@@ -81,7 +82,7 @@ namespace SFG.WitchHunt.SinglePlayer
             RL.writeTraceEntry();
 
             cc = GetComponent<CharacterController>();
-            invUI = FindObjectOfType<InventoryUI>();
+            uis = FindObjectOfType<UIController>();
 
             /* Setup colours */
             allRenderers = GetComponentsInChildren<MeshRenderer>();
@@ -150,26 +151,24 @@ namespace SFG.WitchHunt.SinglePlayer
         {
             RL.writeTraceEntry();
             closestInteractable = null;
-            foreach (IInteractable i in interactablesInRange)
-            {
-                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Server beleives IInteractable " + i.name + " is in range.");
-            }
 
             float minDist = Mathf.Infinity;
             foreach (IInteractable g in interactablesInRange)
             {
-                if (g.tag == "box")
-                {
-                    // Found the a box Raycast to it
-                    RaycastHit hit;
-                    Ray ray = new Ray(transform.position, g.transform.position - transform.position);
-                    // Debug.DrawRay(transform.position, g.transform.position - transform.position, Color.red, 2f);
+                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Server beleives IInteractable " + g.name + " is in range.");
+                // Found the a box Raycast to it
+                RaycastHit hit;
+                Ray ray = new Ray(transform.position, g.transform.position - transform.position);
+                // Debug.DrawRay(transform.position, g.transform.position - transform.position, Color.red, 2f);
 
-                    if (Physics.Raycast(ray, out hit, minDist))
+                if (Physics.Raycast(ray, out hit, minDist))
+                {
+                    if (hit.collider != null)
                     {
-                        RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Hit " + hit.collider.name);
-                        if (hit.collider != null && hit.collider.tag == "box")
+                        IInteractable isInter = hit.collider.gameObject.GetComponent<IInteractable>();
+                        if (isInter != null)
                         {
+                            RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Possible Interaction with: " + isInter.gameObject.name);
                             // Check if it's closest
                             //Debug.DrawRay(transform.position, g.transform.position - transform.position, Color.yellow, 2f);
 
@@ -179,7 +178,12 @@ namespace SFG.WitchHunt.SinglePlayer
                             {
                                 minDist = dist;
                                 closestInteractable = hit.collider.gameObject.GetComponent<IInteractable>();
+                                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "New Closest: " + isInter.gameObject.name);
                             }
+                        }
+                        else
+                        {
+                            RL.writeInfo(RobLogger.LogLevel.VERBOSE, "gameobject " + hit.collider.gameObject.name + " is not interactable");
                         }
                     }
                 }
@@ -308,17 +312,19 @@ namespace SFG.WitchHunt.SinglePlayer
             float minDist = Mathf.Infinity;
             foreach (IInteractable g in interactablesInRange)
             {
-                if (g.tag == "box")
-                {
-                    // Found the a box Raycast to it
-                    RaycastHit hit;
-                    Ray ray = new Ray(transform.position, g.transform.position - transform.position);
-                    // Debug.DrawRay(transform.position, g.transform.position - transform.position, Color.red, 2f);
+                // Found the a box Raycast to it
+                RaycastHit hit;
+                Ray ray = new Ray(transform.position, g.transform.position - transform.position);
+                // Debug.DrawRay(transform.position, g.transform.position - transform.position, Color.red, 2f);
 
-                    if (Physics.Raycast(ray, out hit, minDist))
+                if (Physics.Raycast(ray, out hit, minDist))
+                {
+                    if (hit.collider != null)
                     {
-                        if (hit.collider != null && hit.collider.tag == "box")
+                        IInteractable isInter = hit.collider.gameObject.GetComponent<IInteractable>();
+                        if (isInter != null)
                         {
+                            RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Possible Interaction with: " + isInter.gameObject.name);
                             // Check if it's closest
                             //Debug.DrawRay(transform.position, g.transform.position - transform.position, Color.yellow, 2f);
 
@@ -327,7 +333,12 @@ namespace SFG.WitchHunt.SinglePlayer
                             {
                                 minDist = dist;
                                 closestInteractable = hit.collider.gameObject.GetComponent<IInteractable>();
+                                RL.writeInfo(RobLogger.LogLevel.VERBOSE, "New Closest: " + isInter.gameObject.name);
                             }
+                        }
+                        else
+                        {
+                            RL.writeInfo(RobLogger.LogLevel.VERBOSE, "gameobject " + hit.collider.gameObject.name + " is not interactable");
                         }
                     }
                 }
@@ -338,9 +349,11 @@ namespace SFG.WitchHunt.SinglePlayer
                 if (closestInteractable.isBeingInteracted())
                 {
                     /* can't touch it because it's being touched by someone else! */
+                    RL.writeInfo(RobLogger.LogLevel.VERBOSE, closestInteractable.name + "is Already being interacted with");
                 }
                 else
                 {
+                    RL.writeInfo(RobLogger.LogLevel.VERBOSE, "Initiating interaction with " + closestInteractable.name);
                     /* requesting server checks we can do this baby */
                     CmdAttempInteract();
                 }
@@ -354,7 +367,7 @@ namespace SFG.WitchHunt.SinglePlayer
             // Start rummaging, wait for x amount of time then do it
             UIUp = true;
             Interacting = true;
-            invUI.STARTINVENTORY(closestInteractable.GetComponent<Inventory>(), this);
+            uis.OpenUI(closestInteractable, this);
             RL.writeTraceExit(null);
         }
 
